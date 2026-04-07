@@ -6,577 +6,460 @@
 <title>Segelflug AR</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0f; color: #e8e8f0; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #e8e8f0; min-height: 100vh; }
 #app { display: flex; flex-direction: column; min-height: 100vh; max-width: 480px; margin: 0 auto; }
-
-/* HEADER */
-#header { padding: 1rem 1.25rem 0.75rem; border-bottom: 0.5px solid rgba(255,255,255,0.1); }
-#header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
-#header p { font-size: 13px; color: #888; margin-top: 2px; }
-
-/* TABS */
-#steps { display: flex; border-bottom: 0.5px solid rgba(255,255,255,0.1); }
-.step-btn { flex: 1; padding: 0.65rem; font-size: 12px; font-weight: 500; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; color: #666; transition: all 0.2s; }
-.step-btn.active { color: #e8e8f0; border-bottom-color: #4af; }
-.step-btn.done { color: #4c4; }
-
-/* CONTENT */
+#header { padding: 1rem 1.25rem 0.75rem; border-bottom: 1px solid #1e1e2e; }
+#header h1 { font-size: 20px; font-weight: 600; }
+#header p { font-size: 13px; color: #666; margin-top: 2px; }
+#steps { display: flex; border-bottom: 1px solid #1e1e2e; }
+.tab { flex: 1; padding: 0.65rem 0.25rem; font-size: 12px; font-weight: 500; background: none; border: none; border-bottom: 2px solid transparent; color: #555; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tab.active { color: #e8e8f0; border-bottom-color: #4af; }
+.tab.done { color: #4c4; }
 #content { flex: 1; padding: 1.25rem; }
-
-/* UPLOAD */
-#panel-upload { display: flex; flex-direction: column; gap: 1rem; }
-.drop-zone { cursor: pointer; border: 1px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 2rem 1rem; text-align: center; cursor: pointer; transition: background 0.2s; }
-.drop-zone:hover { background: rgba(255,255,255,0.04); }
-.drop-zone input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.dz-icon { font-size: 30px; margin-bottom: 0.5rem; }
-.drop-zone p { font-size: 14px; color: #aaa; }
-.drop-zone .hint { font-size: 12px; color: #555; margin-top: 4px; }
-
-#igc-info { background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 1rem; display: none; }
-#igc-info h3 { font-size: 13px; font-weight: 600; color: #4af; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
-.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 2px; }
-.info-item span { font-size: 15px; font-weight: 600; }
-
-#map-preview { width: 100%; border-radius: 8px; margin-top: 0.75rem; display: none; max-height: 180px; object-fit: cover; opacity: 0.8; }
-
-/* UPLOAD CARDS */
-.upload-card { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1.25rem; text-align: center; }
-.upload-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-.upload-hint { font-size: 12px; color: #555; margin-bottom: 12px; }
-.upload-status { font-size: 13px; color: #4af; margin-top: 8px; min-height: 18px; }
-.file-btn { display: block; width: 100%; padding: 0.65rem; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #e8e8f0; font-size: 13px; cursor: pointer; }
-.file-btn::-webkit-file-upload-button { background: rgba(68,170,255,0.15); border: 0.5px solid #4af; border-radius: 6px; color: #4af; padding: 4px 12px; font-size: 13px; cursor: pointer; margin-right: 8px; }
+.panel { display: none; flex-direction: column; gap: 1rem; }
+.panel.active { display: flex; }
+.card { background: #111118; border: 1px solid #1e1e2e; border-radius: 12px; padding: 1.25rem; text-align: center; }
+.card .icon { font-size: 28px; margin-bottom: 0.5rem; }
+.card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.card .hint { font-size: 12px; color: #555; margin-bottom: 12px; }
+.card input[type=file] { display: block; width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #2a2a3e; background: #16161f; color: #e8e8f0; font-size: 13px; cursor: pointer; }
+.card input[type=file]::-webkit-file-upload-button { background: rgba(68,170,255,0.12); border: 1px solid #4af; border-radius: 6px; color: #4af; padding: 4px 14px; font-size: 13px; cursor: pointer; margin-right: 10px; }
+.file-status { font-size: 13px; color: #4af; margin-top: 8px; min-height: 18px; }
 #map-preview { width: 100%; border-radius: 8px; margin-top: 0.75rem; display: none; max-height: 150px; object-fit: cover; opacity: 0.8; }
-
-/* CAL */
-#panel-cal { display: none; flex-direction: column; gap: 1rem; }
-.cal-section { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 1rem; }
-.cal-section h3 { font-size: 13px; font-weight: 600; color: #aaa; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
-.cal-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin-bottom: 0.5rem; color: #aaa; }
-.cal-val { font-weight: 600; color: #e8e8f0; min-width: 55px; text-align: right; }
-input[type=range] { width: 100%; accent-color: #4af; margin-top: 4px; }
-.perm-btn { width: 100%; padding: 0.7rem; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); font-size: 14px; font-weight: 500; cursor: pointer; color: #e8e8f0; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+#igc-info { background: #111118; border: 1px solid #1e1e2e; border-radius: 10px; padding: 1rem; display: none; }
+#igc-info h3 { font-size: 11px; font-weight: 600; color: #4af; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.info-item label { font-size: 11px; color: #555; display: block; margin-bottom: 2px; }
+.info-item span { font-size: 15px; font-weight: 600; }
+.cal-card { background: #111118; border: 1px solid #1e1e2e; border-radius: 10px; padding: 1rem; }
+.cal-card h3 { font-size: 11px; font-weight: 600; color: #aaa; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem; }
+.cal-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #888; margin-bottom: 6px; }
+.cal-val { font-weight: 600; color: #e8e8f0; }
+input[type=range] { width: 100%; accent-color: #4af; margin-top: 4px; margin-bottom: 8px; }
+.perm-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid #2a2a3e; background: #16161f; font-size: 14px; font-weight: 500; cursor: pointer; color: #e8e8f0; margin-bottom: 8px; -webkit-tap-highlight-color: transparent; text-align: left; }
 .perm-btn.granted { border-color: #4c4; color: #4c4; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: #c44; flex-shrink: 0; }
 .dot.ok { background: #4c4; }
-.col-btn { flex: 1; height: 30px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
-.col-btn:active { transform: scale(0.92); }
+.color-row { display: flex; gap: 8px; margin-top: 6px; }
+.col-btn { flex: 1; height: 30px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; -webkit-tap-highlight-color: transparent; }
 .col-btn.sel { border-color: #fff; }
-
-/* AR */
-#panel-ar { display: none; flex-direction: column; gap: 0.75rem; }
 #ar-container { position: relative; width: 100%; aspect-ratio: 9/16; background: #000; border-radius: 12px; overflow: hidden; }
 #camera-video { width: 100%; height: 100%; object-fit: cover; display: none; }
-#camera-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0e0e18; color: #333; gap: 0.5rem; }
-#camera-placeholder p { font-size: 13px; }
+#cam-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0a0a14; color: #333; gap: 0.5rem; }
 #ar-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 #ar-hud { position: absolute; top: 0; left: 0; right: 0; padding: 0.75rem; display: flex; justify-content: space-between; }
-.hud-badge { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
+.badge { background: rgba(0,0,0,0.6); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
 #ar-bottom { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.75rem; background: linear-gradient(transparent, rgba(0,0,0,0.6)); }
-#progress-bar-wrap { background: rgba(255,255,255,0.15); border-radius: 100px; height: 3px; margin-bottom: 6px; }
-#progress-bar { height: 3px; background: #4af; border-radius: 100px; width: 0%; transition: width 0.1s; }
-#time-display { font-size: 12px; color: rgba(255,255,255,0.6); text-align: center; font-variant-numeric: tabular-nums; }
-.ar-btn-row { display: flex; gap: 8px; }
-.ar-btn { flex: 1; padding: 0.65rem 0.5rem; font-size: 13px; font-weight: 500; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); cursor: pointer; color: #e8e8f0; transition: opacity 0.15s; }
-.ar-btn:active { opacity: 0.6; }
+#progress-wrap { background: rgba(255,255,255,0.15); border-radius: 100px; height: 3px; margin-bottom: 6px; }
+#progress-bar { height: 3px; background: #4af; border-radius: 100px; width: 0%; }
+#time-disp { font-size: 12px; color: rgba(255,255,255,0.6); text-align: center; font-variant-numeric: tabular-nums; }
+.ar-btns { display: flex; gap: 8px; }
+.ar-btn { flex: 1; padding: 0.65rem; font-size: 13px; font-weight: 500; border-radius: 8px; border: 1px solid #2a2a3e; background: #16161f; cursor: pointer; color: #e8e8f0; -webkit-tap-highlight-color: transparent; }
 .ar-btn.cam { border-color: #4af; color: #4af; }
 .ar-btn.play { border-color: #4c4; color: #4c4; }
 .ar-btn.stop { border-color: #c44; color: #c44; }
-.speed-wrap label { font-size: 12px; color: #666; display: flex; justify-content: space-between; margin-bottom: 4px; }
-.speed-wrap label span { color: #e8e8f0; font-weight: 600; }
-
-/* SHARED BTN */
-.next-btn { width: 100%; padding: 0.75rem; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); font-size: 14px; font-weight: 500; cursor: pointer; color: #e8e8f0; margin-top: 0.5rem; }
-.next-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.speed-row { }
+.speed-row label { font-size: 12px; color: #555; display: flex; justify-content: space-between; margin-bottom: 4px; }
+.speed-row label span { color: #e8e8f0; font-weight: 600; }
+.next-btn { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #2a2a3e; background: #16161f; font-size: 14px; font-weight: 500; cursor: pointer; color: #e8e8f0; -webkit-tap-highlight-color: transparent; }
 </style>
 </head>
 <body>
 <div id="app">
   <div id="header">
-    <h1>⛵ Segelflug AR</h1>
+    <h1>&#x26F5; Segelflug AR</h1>
     <p>IGC-Flugpfad live über die Kamera legen</p>
   </div>
 
   <div id="steps">
-    <button class="step-btn active" id="tab-upload" onclick="showTab('upload')">1 · Flugdaten</button>
-    <button class="step-btn" id="tab-cal" onclick="showTab('cal')">2 · Einstellung</button>
-    <button class="step-btn" id="tab-ar" onclick="showTab('ar')">3 · AR-Ansicht</button>
+    <button class="tab active" id="tab-upload">1 · Flugdaten</button>
+    <button class="tab" id="tab-cal">2 · Einstellung</button>
+    <button class="tab" id="tab-ar">3 · AR-Ansicht</button>
   </div>
 
   <div id="content">
 
-    <!-- STEP 1 -->
-    <div id="panel-upload">
-
-      <div class="upload-card">
-        <div class="dz-icon">🪂</div>
-        <p class="upload-title">IGC-Flugdatei</p>
-        <p class="upload-hint">Flugcomputer-Aufzeichnung (.igc)</p>
-        <input type="file" id="igc-file" class="file-btn">
-        <p id="igc-status" class="upload-status"></p>
+    <div class="panel active" id="panel-upload">
+      <div class="card">
+        <div class="icon">&#x1FA82;</div>
+        <h3>IGC-Flugdatei</h3>
+        <div class="hint">Flugcomputer-Aufzeichnung (.igc)</div>
+        <input type="file" id="igc-input">
+        <div class="file-status" id="igc-status"></div>
       </div>
-
       <div id="igc-info">
         <h3>Flug erkannt</h3>
         <div class="info-grid">
-          <div class="info-item"><label>Datum</label><span id="info-date">–</span></div>
-          <div class="info-item"><label>Dauer</label><span id="info-dur">–</span></div>
-          <div class="info-item"><label>GPS-Punkte</label><span id="info-pts">–</span></div>
-          <div class="info-item"><label>Max. Höhe</label><span id="info-alt">–</span></div>
-          <div class="info-item"><label>Start (ca.)</label><span id="info-start">–</span></div>
-          <div class="info-item"><label>Strecke ~</label><span id="info-dist">–</span></div>
+          <div class="info-item"><label>Datum</label><span id="info-date">-</span></div>
+          <div class="info-item"><label>Dauer</label><span id="info-dur">-</span></div>
+          <div class="info-item"><label>GPS-Punkte</label><span id="info-pts">-</span></div>
+          <div class="info-item"><label>Max. Hoehe</label><span id="info-alt">-</span></div>
+          <div class="info-item"><label>Start</label><span id="info-start">-</span></div>
+          <div class="info-item"><label>Strecke</label><span id="info-dist">-</span></div>
         </div>
       </div>
-
-      <div class="upload-card">
-        <div class="dz-icon">🗺️</div>
-        <p class="upload-title">Reliefkarte <span style="color:#555;font-weight:400">(optional)</span></p>
-        <p class="upload-hint">.jpg / .png — erscheint als Mini-Karte</p>
-        <input type="file" id="map-file" accept="image/*" class="file-btn">
+      <div class="card">
+        <div class="icon">&#x1F5FA;&#xFE0F;</div>
+        <h3>Reliefkarte <span style="color:#555;font-weight:400;font-size:13px">(optional)</span></h3>
+        <div class="hint">.jpg / .png als Mini-Karte im Overlay</div>
+        <input type="file" id="map-input" accept="image/*">
         <img id="map-preview">
       </div>
-
-      <button class="next-btn" id="btn-next" onclick="showTab('cal')">Weiter zur Einstellung →</button>
+      <button class="next-btn" id="btn-to-cal">Weiter zur Einstellung &#x2192;</button>
     </div>
 
-    <!-- STEP 2 -->
-    <div id="panel-cal">
-      <div class="cal-section">
+    <div class="panel" id="panel-cal">
+      <div class="cal-card">
         <h3>Berechtigungen</h3>
-        <button class="perm-btn" id="btn-cam-perm" onclick="requestCamera()">
-          <span class="dot" id="dot-cam"></span> Kamera freigeben
+        <button class="perm-btn" id="btn-cam">
+          <span class="dot" id="dot-cam"></span><span>Kamera freigeben</span>
         </button>
-        <button class="perm-btn" id="btn-orient-perm" onclick="requestOrientation()">
-          <span class="dot" id="dot-orient"></span> Kompass / Lagesensor
+        <button class="perm-btn" id="btn-orient">
+          <span class="dot" id="dot-orient"></span><span>Kompass / Lagesensor</span>
         </button>
       </div>
-
-      <div class="cal-section">
+      <div class="cal-card">
         <h3>Overlay-Einstellungen</h3>
-
-        <div class="cal-row"><span>Flugpfad-Skalierung</span><span class="cal-val" id="val-scale">1.0×</span></div>
-        <input type="range" min="0.2" max="5" step="0.1" value="1" oninput="cfg.scale=parseFloat(this.value);document.getElementById('val-scale').textContent=parseFloat(this.value).toFixed(1)+'×'">
-
-        <div class="cal-row" style="margin-top:0.75rem"><span>Kompass-Offset</span><span class="cal-val" id="val-offx">0°</span></div>
-        <input type="range" min="-180" max="180" step="1" value="0" oninput="cfg.headingOffset=parseInt(this.value);document.getElementById('val-offx').textContent=this.value+'°'">
-
-        <div class="cal-row" style="margin-top:0.75rem"><span>Pfad-Farbe</span></div>
-        <div style="display:flex;gap:8px;margin-top:6px">
-          <button onclick="setColor('#44aaff',this)" class="col-btn sel" style="background:#44aaff"></button>
-          <button onclick="setColor('#ff6633',this)" class="col-btn" style="background:#ff6633"></button>
-          <button onclick="setColor('#44ff88',this)" class="col-btn" style="background:#44ff88"></button>
-          <button onclick="setColor('#ffdd00',this)" class="col-btn" style="background:#ffdd00"></button>
+        <div class="cal-row"><span>Pfad-Skalierung</span><span class="cal-val" id="val-scale">1.0x</span></div>
+        <input type="range" min="0.2" max="5" step="0.1" value="1" id="sl-scale">
+        <div class="cal-row"><span>Kompass-Offset</span><span class="cal-val" id="val-offset">0 Grad</span></div>
+        <input type="range" min="-180" max="180" step="1" value="0" id="sl-offset">
+        <div class="cal-row"><span>Pfad-Farbe</span></div>
+        <div class="color-row">
+          <button class="col-btn sel" style="background:#44aaff" data-color="#44aaff"></button>
+          <button class="col-btn" style="background:#ff6633" data-color="#ff6633"></button>
+          <button class="col-btn" style="background:#44ff88" data-color="#44ff88"></button>
+          <button class="col-btn" style="background:#ffdd00" data-color="#ffdd00"></button>
         </div>
       </div>
-
-      <button class="next-btn" onclick="showTab('ar')">Zur AR-Ansicht →</button>
+      <button class="next-btn" id="btn-to-ar">Zur AR-Ansicht &#x2192;</button>
     </div>
 
-    <!-- STEP 3 -->
-    <div id="panel-ar">
+    <div class="panel" id="panel-ar">
       <div id="ar-container">
         <video id="camera-video" autoplay playsinline muted></video>
-        <div id="camera-placeholder">
-          <span style="font-size:36px">📷</span>
-          <p>Kamera nicht aktiv</p>
+        <div id="cam-placeholder">
+          <span style="font-size:36px">&#x1F4F7;</span>
+          <p style="font-size:13px">Kamera nicht aktiv</p>
         </div>
         <canvas id="ar-canvas"></canvas>
         <div id="ar-hud">
-          <div class="hud-badge" id="hud-heading">↑ 0°</div>
-          <div class="hud-badge" id="hud-alt">– m MSL</div>
+          <div class="badge" id="hud-heading">N 0&#xB0;</div>
+          <div class="badge" id="hud-alt">- m</div>
         </div>
         <div id="ar-bottom">
-          <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
-          <div id="time-display">–</div>
+          <div id="progress-wrap"><div id="progress-bar"></div></div>
+          <div id="time-disp">-</div>
         </div>
       </div>
-
-      <div class="ar-btn-row">
-        <button class="ar-btn cam" onclick="startCamera()">▶ Kamera</button>
-        <button class="ar-btn play" onclick="startPlayback()">▷ Wiedergabe</button>
-        <button class="ar-btn stop" onclick="stopPlayback()">■ Stop</button>
+      <div class="ar-btns">
+        <button class="ar-btn cam" id="btn-start-cam">&#x25B6; Kamera</button>
+        <button class="ar-btn play" id="btn-play">&#x25B7; Wiedergabe</button>
+        <button class="ar-btn stop" id="btn-stop">&#x25A0; Stop</button>
       </div>
-
-      <div class="speed-wrap">
-        <label>Wiedergabe-Geschwindigkeit <span id="speed-val">10×</span></label>
-        <input type="range" min="1" max="100" value="10" step="1" oninput="cfg.playbackSpeed=parseInt(this.value);document.getElementById('speed-val').textContent=this.value+'×'">
+      <div class="speed-row">
+        <label>Geschwindigkeit <span id="speed-val">10x</span></label>
+        <input type="range" min="1" max="100" value="10" step="1" id="sl-speed">
       </div>
     </div>
+
   </div>
 </div>
-
 <script>
-// ---- STATE ----
-let igcPoints = [];
-let mapImg = null;
-let cfg = { scale: 1.0, headingOffset: 0, color: '#44aaff', playbackSpeed: 10 };
-let heading = 0;
-let playbackTimer = null;
-let playIdx = 0;
-let cameraStream = null;
-let rafId = null;
+var igcPoints = [];
+var mapImg = null;
+var cfg = { scale: 1.0, headingOffset: 0, color: '#44aaff', playbackSpeed: 10 };
+var heading = 0;
+var playTimer = null;
+var playIdx = 0;
+var cameraStream = null;
+var canvas, ctx, rafId;
 
-// ---- TAB NAV ----
-function showTab(t) {
-  ['upload','cal','ar'].forEach(n => {
-    document.getElementById('panel-'+n).style.display = 'none';
-    document.getElementById('tab-'+n).classList.remove('active');
+// NAV
+function showTab(name) {
+  ['upload','cal','ar'].forEach(function(t) {
+    document.getElementById('panel-'+t).classList.remove('active');
+    document.getElementById('tab-'+t).classList.remove('active');
   });
-  document.getElementById('panel-'+t).style.display = 'flex';
-  document.getElementById('tab-'+t).classList.add('active');
-  if (t === 'ar') { setTimeout(() => { resizeCanvas(); drawFrame(); }, 50); }
+  document.getElementById('panel-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name === 'ar') setTimeout(function(){ resizeCanvas(); drawFrame(); }, 60);
 }
+document.getElementById('tab-upload').addEventListener('click', function(){ showTab('upload'); });
+document.getElementById('tab-cal').addEventListener('click', function(){ showTab('cal'); });
+document.getElementById('tab-ar').addEventListener('click', function(){ showTab('ar'); });
+document.getElementById('btn-to-cal').addEventListener('click', function(){ showTab('cal'); });
+document.getElementById('btn-to-ar').addEventListener('click', function(){ showTab('ar'); });
 
-// ---- IGC PARSER ----
-function loadIGC(input) {
-  const file = input.files[0];
+// IGC
+document.getElementById('igc-input').addEventListener('change', function() {
+  var file = this.files && this.files[0];
   if (!file) return;
-  // Show loading feedback
-  document.getElementById('igc-status').textContent = 'Wird geladen…';
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      igcPoints = parseIGC(e.target.result);
-      if (igcPoints.length < 2) {
-        document.getElementById('igc-status').textContent = '⚠️ Keine GPS-Punkte gefunden';
-        alert('Keine gültigen B-Records gefunden.\nBitte eine gültige .igc Datei wählen.');
-        return;
-      }
-      document.getElementById('igc-status').textContent = '✓ ' + file.name;
-      showIGCInfo();
-      document.getElementById('btn-next').disabled = false;
-      document.getElementById('tab-upload').classList.add('done');
-    } catch(err) {
-      alert('Fehler beim Lesen: ' + err.message);
-      document.getElementById('igc-status').textContent = '';
+  document.getElementById('igc-status').textContent = 'Wird geladen...';
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var pts = parseIGC(e.target.result);
+    if (pts.length < 2) {
+      document.getElementById('igc-status').textContent = 'Keine GPS-Punkte gefunden';
+      return;
     }
+    igcPoints = pts;
+    document.getElementById('igc-status').textContent = pts.length + ' GPS-Punkte geladen';
+    showIGCInfo(pts);
+    document.getElementById('tab-upload').classList.add('done');
   };
-  reader.onerror = () => { alert('Datei konnte nicht gelesen werden.'); };
+  reader.onerror = function(){ document.getElementById('igc-status').textContent = 'Lesefehler'; };
   reader.readAsText(file, 'utf-8');
-}
+});
 
 function parseIGC(text) {
-  // Handle all line endings
-  const lines = text.split(/\r\n|\r|\n/);
-  const pts = [];
-  let dateStr = '';
-  for (const raw of lines) {
-    const l = raw.trim();
+  var lines = text.split(/\r\n|\r|\n/);
+  var pts = [], dateStr = '';
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i].trim();
     if (!l) continue;
-    // Date header
-    if (l.match(/^H[FP]DTE/i)) {
-      const m = l.match(/(\d{2})(\d{2})(\d{2})/);
-      if (m) dateStr = \`20\${m[3]}-\${m[2]}-\${m[1]}\`;
+    if (/^H[FP]DTE/i.test(l)) {
+      var m = l.match(/(\d{2})(\d{2})(\d{2})/);
+      if (m) dateStr = '20'+m[3]+'-'+m[2]+'-'+m[1];
     }
-    // B record (fix record) - must be at least 35 chars
-    if ((l[0] === 'B' || l[0] === 'b') && l.length >= 35) {
+    if ((l[0]==='B'||l[0]==='b') && l.length >= 35) {
       try {
-        const hh = parseInt(l.slice(1,3)), mm = parseInt(l.slice(3,5)), ss = parseInt(l.slice(5,7));
-        const latD = parseInt(l.slice(7,9));
-        const latM = parseFloat(l.slice(9,14)) / 1000;
-        const latHem = l[14].toUpperCase();
-        const lonD = parseInt(l.slice(15,18));
-        const lonM = parseFloat(l.slice(18,23)) / 1000;
-        const lonHem = l[23].toUpperCase();
-        const altBaro = parseInt(l.slice(25,30));
-        const altGPS  = parseInt(l.slice(30,35));
-        let lat = latD + latM / 60; if (latHem === 'S') lat = -lat;
-        let lon = lonD + lonM / 60; if (lonHem === 'W') lon = -lon;
-        const alt = (altBaro > 0 && altBaro < 20000) ? altBaro : (altGPS > 0 ? altGPS : 0);
-        if (isFinite(lat) && isFinite(lon) && lat !== 0 && lon !== 0) {
-          pts.push({ time: hh*3600+mm*60+ss, lat, lon, alt, dateStr });
-        }
-      } catch(e) { /* skip malformed line */ }
+        var hh=parseInt(l.slice(1,3)), mm2=parseInt(l.slice(3,5)), ss=parseInt(l.slice(5,7));
+        var latD=parseInt(l.slice(7,9)), latM=parseFloat(l.slice(9,14))/1000, latH=l[14].toUpperCase();
+        var lonD=parseInt(l.slice(15,18)), lonM=parseFloat(l.slice(18,23))/1000, lonH=l[23].toUpperCase();
+        var altB=parseInt(l.slice(25,30)), altG=parseInt(l.slice(30,35));
+        var lat=latD+latM/60; if(latH==='S') lat=-lat;
+        var lon=lonD+lonM/60; if(lonH==='W') lon=-lon;
+        var alt=(altB>0&&altB<20000)?altB:(altG>0?altG:0);
+        if(isFinite(lat)&&isFinite(lon)&&lat!==0&&lon!==0)
+          pts.push({t:hh*3600+mm2*60+ss, lat:lat, lon:lon, alt:alt, date:dateStr});
+      } catch(e){}
     }
   }
   return pts;
 }
 
-function showIGCInfo() {
-  if (!igcPoints.length) return;
-  const first = igcPoints[0], last = igcPoints[igcPoints.length-1];
-  const dur = last.time - first.time;
-  const hh = Math.floor(dur/3600), mm = Math.floor((dur%3600)/60);
-  const maxAlt = Math.max(...igcPoints.map(p=>p.alt));
-  let dist = 0;
-  for (let i = 1; i < igcPoints.length; i++) dist += haversine(igcPoints[i-1], igcPoints[i]);
-  document.getElementById('info-date').textContent = first.dateStr || '–';
-  document.getElementById('info-dur').textContent = hh + 'h ' + mm + 'm';
-  document.getElementById('info-pts').textContent = igcPoints.length.toLocaleString();
-  document.getElementById('info-alt').textContent = maxAlt + ' m';
-  document.getElementById('info-start').textContent = first.lat.toFixed(3) + ', ' + first.lon.toFixed(3);
-  document.getElementById('info-dist').textContent = Math.round(dist) + ' km';
+function showIGCInfo(pts) {
+  var first=pts[0], last=pts[pts.length-1], dur=last.t-first.t;
+  var maxAlt=0, dist=0;
+  for(var i=0;i<pts.length;i++) if(pts[i].alt>maxAlt) maxAlt=pts[i].alt;
+  for(var i=1;i<pts.length;i++) dist+=haversine(pts[i-1],pts[i]);
+  document.getElementById('info-date').textContent = first.date||'-';
+  document.getElementById('info-dur').textContent = Math.floor(dur/3600)+'h '+Math.floor((dur%3600)/60)+'m';
+  document.getElementById('info-pts').textContent = pts.length;
+  document.getElementById('info-alt').textContent = maxAlt+' m';
+  document.getElementById('info-start').textContent = first.lat.toFixed(3)+', '+first.lon.toFixed(3);
+  document.getElementById('info-dist').textContent = Math.round(dist)+' km';
   document.getElementById('igc-info').style.display = 'block';
 }
 
-function haversine(a, b) {
-  const R = 6371;
-  const dLat = (b.lat-a.lat)*Math.PI/180;
-  const dLon = (b.lon-a.lon)*Math.PI/180;
-  const x = Math.sin(dLat/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+function haversine(a,b) {
+  var R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180;
+  var x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
 
-// ---- MAP ----
-function loadMap(input) {
-  const file = input.files[0];
+// MAP
+document.getElementById('map-input').addEventListener('change', function() {
+  var file = this.files && this.files[0];
   if (!file) return;
-  const url = URL.createObjectURL(file);
-  const img = new Image();
-  img.onload = () => { mapImg = img; };
+  var url = URL.createObjectURL(file);
+  var img = new Image();
+  img.onload = function(){ mapImg = img; };
   img.src = url;
-  const prev = document.getElementById('map-preview');
+  var prev = document.getElementById('map-preview');
   prev.src = url; prev.style.display = 'block';
-}
+});
 
-// ---- CAMERA ----
-async function requestCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
-    cameraStream = stream;
-    document.getElementById('dot-cam').classList.add('ok');
-    document.getElementById('btn-cam-perm').classList.add('granted');
-    document.getElementById('btn-cam-perm').childNodes[1].textContent = ' Kamera freigegeben ✓';
-  } catch(e) { alert('Kamera-Zugriff verweigert:\n' + e.message); }
-}
+// CAL
+document.getElementById('sl-scale').addEventListener('input', function(){
+  cfg.scale = parseFloat(this.value);
+  document.getElementById('val-scale').textContent = parseFloat(this.value).toFixed(1)+'x';
+});
+document.getElementById('sl-offset').addEventListener('input', function(){
+  cfg.headingOffset = parseInt(this.value);
+  document.getElementById('val-offset').textContent = this.value+' Grad';
+});
+document.querySelectorAll('.col-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.col-btn').forEach(function(b){ b.classList.remove('sel'); });
+    btn.classList.add('sel');
+    cfg.color = btn.getAttribute('data-color');
+  });
+});
 
-function startCamera() {
-  if (!cameraStream) { alert('Bitte erst Kamera freigeben (Schritt 2).'); return; }
-  const video = document.getElementById('camera-video');
+// CAMERA
+document.getElementById('btn-cam').addEventListener('click', function(){
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
+    .then(function(stream){
+      cameraStream = stream;
+      document.getElementById('dot-cam').classList.add('ok');
+      document.getElementById('btn-cam').classList.add('granted');
+      document.getElementById('btn-cam').querySelector('span:last-child').textContent = 'Kamera freigegeben';
+    })
+    .catch(function(e){ alert('Kamera-Fehler: '+e.message); });
+});
+
+document.getElementById('btn-start-cam').addEventListener('click', function(){
+  if (!cameraStream){ alert('Bitte erst Kamera freigeben (Schritt 2).'); return; }
+  var video = document.getElementById('camera-video');
   video.srcObject = cameraStream;
   video.style.display = 'block';
-  document.getElementById('camera-placeholder').style.display = 'none';
+  document.getElementById('cam-placeholder').style.display = 'none';
   scheduleFrame();
-}
+});
 
-// ---- ORIENTATION ----
-function requestOrientation() {
-  const go = () => {
-    window.addEventListener('deviceorientation', onOrient, true);
+// ORIENTATION
+document.getElementById('btn-orient').addEventListener('click', function(){
+  var activate = function(){
+    window.addEventListener('deviceorientation', function(e){
+      var h = e.webkitCompassHeading || e.alpha || 0;
+      heading = (h - cfg.headingOffset + 360) % 360;
+      document.getElementById('hud-heading').textContent = 'N '+Math.round(heading)+'&#xB0;';
+    }, true);
     document.getElementById('dot-orient').classList.add('ok');
-    document.getElementById('btn-orient-perm').classList.add('granted');
-    document.getElementById('btn-orient-perm').childNodes[1].textContent = ' Lagesensor aktiv ✓';
+    document.getElementById('btn-orient').classList.add('granted');
+    document.getElementById('btn-orient').querySelector('span:last-child').textContent = 'Lagesensor aktiv';
   };
   if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission().then(s => { if (s === 'granted') go(); }).catch(e => alert(e));
-  } else { go(); }
-}
+    DeviceOrientationEvent.requestPermission().then(function(s){ if(s==='granted') activate(); }).catch(function(e){ alert(e); });
+  } else { activate(); }
+});
 
-function onOrient(e) {
-  if (e.alpha !== null) {
-    heading = ((e.webkitCompassHeading || e.alpha) - cfg.headingOffset + 360) % 360;
-    document.getElementById('hud-heading').textContent = '↑ ' + Math.round(heading) + '°';
-  }
-}
-
-// ---- AR CANVAS ----
-let canvas, ctx;
-function resizeCanvas() {
+// CANVAS
+function resizeCanvas(){
   canvas = document.getElementById('ar-canvas');
-  const cont = document.getElementById('ar-container');
+  var cont = document.getElementById('ar-container');
   canvas.width = cont.offsetWidth;
   canvas.height = cont.offsetHeight;
   ctx = canvas.getContext('2d');
 }
 
-function scheduleFrame() {
+function scheduleFrame(){
   if (rafId) cancelAnimationFrame(rafId);
-  rafId = requestAnimationFrame(() => { drawFrame(); if (cameraStream) scheduleFrame(); });
+  rafId = requestAnimationFrame(function(){ drawFrame(); if(cameraStream) scheduleFrame(); });
 }
 
-function drawFrame() {
+function drawFrame(){
   if (!ctx) resizeCanvas();
   if (!ctx) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   if (!igcPoints.length) return;
+  var W=canvas.width, H=canvas.height, pts=igcPoints;
+  var minLat=Infinity,maxLat=-Infinity,minLon=Infinity,maxLon=-Infinity;
+  for(var i=0;i<pts.length;i++){
+    if(pts[i].lat<minLat) minLat=pts[i].lat; if(pts[i].lat>maxLat) maxLat=pts[i].lat;
+    if(pts[i].lon<minLon) minLon=pts[i].lon; if(pts[i].lon>maxLon) maxLon=pts[i].lon;
+  }
+  var dLat=maxLat-minLat||0.001, dLon=maxLon-minLon||0.001;
+  var cLat=(minLat+maxLat)/2, cLon=(minLon+maxLon)/2;
+  var maxAlt=0,minAlt=99999;
+  for(var i=0;i<pts.length;i++){ if(pts[i].alt>maxAlt) maxAlt=pts[i].alt; if(pts[i].alt<minAlt) minAlt=pts[i].alt; }
+  var altRange=maxAlt-minAlt||1;
 
-  const W = canvas.width, H = canvas.height;
-  const pts = igcPoints;
-
-  const lats = pts.map(p=>p.lat), lons = pts.map(p=>p.lon);
-  const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-  const minLon = Math.min(...lons), maxLon = Math.max(...lons);
-  const dLat = maxLat - minLat || 0.001;
-  const dLon = maxLon - minLon || 0.001;
-
-  function project(p) {
-    let nx = (p.lon - (minLon + dLon/2)) / dLon;
-    let ny = (p.lat - (minLat + dLat/2)) / dLat;
-    const rad = -heading * Math.PI / 180;
-    const rx = nx * Math.cos(rad) - ny * Math.sin(rad);
-    const ry = nx * Math.sin(rad) + ny * Math.cos(rad);
-    const margin = 0.15;
-    const s = Math.min(W, H) * (0.5 - margin) * cfg.scale;
-    return { x: W/2 + rx * s, y: H/2 - ry * s, alt: p.alt };
+  function proj(p){
+    var nx=(p.lon-cLon)/dLon, ny=(p.lat-cLat)/dLat;
+    var rad=-heading*Math.PI/180;
+    var rx=nx*Math.cos(rad)-ny*Math.sin(rad), ry=nx*Math.sin(rad)+ny*Math.cos(rad);
+    var s=Math.min(W,H)*0.35*cfg.scale;
+    return {x:W/2+rx*s, y:H/2-ry*s};
   }
 
-  const projected = pts.map(project);
-  const maxAlt = Math.max(...pts.map(p=>p.alt));
-  const minAlt = Math.min(...pts.map(p=>p.alt));
-  const altRange = maxAlt - minAlt || 1;
+  var projected = [];
+  for(var i=0;i<pts.length;i++) projected.push(proj(pts[i]));
+  var endIdx = playIdx>0 ? Math.min(playIdx,projected.length-1) : projected.length-1;
 
-  // ghost path
-  ctx.beginPath();
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.lineWidth = 1.5;
-  ctx.lineJoin = 'round';
-  projected.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  // ghost
+  ctx.beginPath(); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1.5;
+  for(var i=0;i<projected.length;i++) i===0?ctx.moveTo(projected[i].x,projected[i].y):ctx.lineTo(projected[i].x,projected[i].y);
   ctx.stroke();
 
   // colored path
-  const endIdx = playIdx > 0 ? Math.min(playIdx, projected.length - 1) : projected.length - 1;
-  const useAltColor = cfg.color === '#44aaff';
-
-  for (let i = 1; i <= endIdx; i++) {
-    const t = (pts[i].alt - minAlt) / altRange;
-    let strokeColor;
-    if (useAltColor) {
-      const r = Math.round(68 + t * 150);
-      const g = Math.round(170 - t * 80);
-      const b = 255;
-      strokeColor = `rgba(${r},${g},${b},0.9)`;
-    } else {
-      strokeColor = cfg.color;
-    }
+  var useAlt = cfg.color==='#44aaff';
+  for(var i=1;i<=endIdx;i++){
+    var t=(pts[i].alt-minAlt)/altRange;
     ctx.beginPath();
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = 3;
-    ctx.lineJoin = 'round';
-    ctx.moveTo(projected[i-1].x, projected[i-1].y);
-    ctx.lineTo(projected[i].x, projected[i].y);
+    ctx.strokeStyle = useAlt ? 'rgba('+Math.round(68+t*150)+','+Math.round(170-t*80)+',255,0.9)' : cfg.color;
+    ctx.lineWidth=3; ctx.lineJoin='round';
+    ctx.moveTo(projected[i-1].x,projected[i-1].y);
+    ctx.lineTo(projected[i].x,projected[i].y);
     ctx.stroke();
   }
 
-  // current position
-  if (endIdx >= 0 && projected[endIdx]) {
-    const cp = projected[endIdx];
-    // glow ring
-    ctx.beginPath();
-    ctx.arc(cp.x, cp.y, 10, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(cp.x, cp.y, 6, 0, Math.PI*2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(cp.x, cp.y, 4, 0, Math.PI*2);
-    ctx.fillStyle = cfg.color;
-    ctx.fill();
-
-    // direction arrow
-    if (endIdx < projected.length - 1 && projected[endIdx+1]) {
-      const nx = projected[endIdx+1];
-      const angle = Math.atan2(nx.y - cp.y, nx.x - cp.x);
-      ctx.save();
-      ctx.translate(cp.x, cp.y);
-      ctx.rotate(angle);
-      ctx.beginPath();
-      ctx.moveTo(14, 0); ctx.lineTo(-5, 6); ctx.lineTo(-3, 0); ctx.lineTo(-5, -6);
-      ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      ctx.fill();
+  // dot
+  if(endIdx>=0){
+    var cp=projected[endIdx];
+    ctx.beginPath(); ctx.arc(cp.x,cp.y,10,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cp.x,cp.y,6,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cp.x,cp.y,4,0,Math.PI*2); ctx.fillStyle=cfg.color; ctx.fill();
+    if(endIdx<projected.length-1){
+      var np=projected[endIdx+1];
+      var angle=Math.atan2(np.y-cp.y,np.x-cp.x);
+      ctx.save(); ctx.translate(cp.x,cp.y); ctx.rotate(angle);
+      ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(-5,5); ctx.lineTo(-5,-5); ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fill();
       ctx.restore();
     }
-
-    document.getElementById('hud-alt').textContent = pts[endIdx].alt + ' m MSL';
+    document.getElementById('hud-alt').textContent = pts[endIdx].alt+' m';
   }
 
-  // minimap (map image)
-  if (mapImg) {
-    const mw = Math.min(W * 0.28, 110);
-    const mh = mw * mapImg.height / mapImg.width;
-    const mx = W - mw - 10, my = 10;
-    ctx.globalAlpha = 0.75;
-    ctx.drawImage(mapImg, mx, my, mw, mh);
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(mx, my, mw, mh);
-    // mini flight path overlay on map
-    if (pts.length > 1) {
-      const scaleX = mw / dLon, scaleY = mh / dLat;
-      const s2 = Math.min(scaleX, scaleY) * 0.85;
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(mx, my, mw, mh);
-      ctx.clip();
-      ctx.beginPath();
-      ctx.strokeStyle = cfg.color;
-      ctx.lineWidth = 1;
-      pts.forEach((p, i) => {
-        const x = mx + mw/2 + (p.lon - (minLon + dLon/2)) * s2;
-        const y = my + mh/2 - (p.lat - (minLat + dLat/2)) * s2;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-      // current pos dot on minimap
-      if (endIdx >= 0) {
-        const cp2 = pts[endIdx];
-        const cx2 = mx + mw/2 + (cp2.lon - (minLon + dLon/2)) * s2;
-        const cy2 = my + mh/2 - (cp2.lat - (minLat + dLat/2)) * s2;
-        ctx.beginPath(); ctx.arc(cx2, cy2, 3, 0, Math.PI*2);
-        ctx.fillStyle = '#fff'; ctx.fill();
-      }
-      ctx.restore();
+  // minimap
+  if(mapImg){
+    var mw=Math.min(W*0.28,110), mh=mw*mapImg.height/mapImg.width, mx=W-mw-10, my=10;
+    ctx.globalAlpha=0.75; ctx.drawImage(mapImg,mx,my,mw,mh); ctx.globalAlpha=1;
+    ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=0.5; ctx.strokeRect(mx,my,mw,mh);
+    ctx.save(); ctx.beginPath(); ctx.rect(mx,my,mw,mh); ctx.clip();
+    var s2=Math.min(mw/dLon,mh/dLat)*0.85;
+    ctx.beginPath(); ctx.strokeStyle=cfg.color; ctx.lineWidth=1;
+    for(var i=0;i<pts.length;i++){
+      var x=mx+mw/2+(pts[i].lon-cLon)*s2, y=my+mh/2-(pts[i].lat-cLat)*s2;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
     }
+    ctx.stroke();
+    if(endIdx>=0){
+      var cx2=mx+mw/2+(pts[endIdx].lon-cLon)*s2, cy2=my+mh/2-(pts[endIdx].lat-cLat)*s2;
+      ctx.beginPath(); ctx.arc(cx2,cy2,3,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+    }
+    ctx.restore();
   }
 
-  // compass rose
-  const cx = 28, cy = H - 32;
-  ctx.save(); ctx.translate(cx, cy); ctx.rotate(-heading * Math.PI / 180);
-  ctx.beginPath(); ctx.moveTo(0,-13); ctx.lineTo(4,5); ctx.lineTo(-4,5);
-  ctx.fillStyle = '#f55'; ctx.fill();
-  ctx.beginPath(); ctx.moveTo(0,13); ctx.lineTo(4,-5); ctx.lineTo(-4,-5);
-  ctx.fillStyle = '#888'; ctx.fill();
+  // compass
+  var cx3=28, cy3=H-32;
+  ctx.save(); ctx.translate(cx3,cy3); ctx.rotate(-heading*Math.PI/180);
+  ctx.beginPath(); ctx.moveTo(0,-13); ctx.lineTo(4,5); ctx.lineTo(-4,5); ctx.fillStyle='#f55'; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0,13); ctx.lineTo(4,-5); ctx.lineTo(-4,-5); ctx.fillStyle='#666'; ctx.fill();
   ctx.restore();
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  ctx.font = 'bold 9px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('N', cx, cy - 17);
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('N',cx3,cy3-17);
 }
 
-// ---- PLAYBACK ----
-function startPlayback() {
-  if (!igcPoints.length) { alert('Bitte zuerst eine IGC-Datei in Schritt 1 laden.'); return; }
-  stopPlayback();
-  playIdx = 0;
-  const total = igcPoints.length;
-  playbackTimer = setInterval(() => {
-    playIdx = Math.min(playIdx + cfg.playbackSpeed, total - 1);
-    const pct = (playIdx / (total-1)) * 100;
-    document.getElementById('progress-bar').style.width = pct.toFixed(1) + '%';
-    const p = igcPoints[playIdx];
-    const h = Math.floor(p.time/3600), m = Math.floor((p.time%3600)/60), s = p.time%60;
-    document.getElementById('time-display').textContent =
-      String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + ' UTC';
-    if (!cameraStream) drawFrame();
-    if (playIdx >= total - 1) stopPlayback();
-  }, 50);
-}
-
-function stopPlayback() {
-  if (playbackTimer) { clearInterval(playbackTimer); playbackTimer = null; }
-}
-
-function setColor(c, btn) {
-  cfg.color = c;
-  document.querySelectorAll('.col-btn').forEach(b => b.classList.remove('sel'));
-  btn.classList.add('sel');
-}
-
-// init - direct addEventListener on visible inputs (most reliable on iOS)
-document.getElementById('igc-file').addEventListener('change', function() {
-  if (this.files && this.files[0]) loadIGC(this);
-});
-document.getElementById('map-file').addEventListener('change', function() {
-  if (this.files && this.files[0]) loadMap(this);
+// PLAYBACK
+document.getElementById('btn-play').addEventListener('click', function(){
+  if(!igcPoints.length){ alert('Bitte zuerst eine IGC-Datei laden.'); return; }
+  if(playTimer) clearInterval(playTimer);
+  playIdx=0;
+  var total=igcPoints.length;
+  playTimer=setInterval(function(){
+    playIdx=Math.min(playIdx+cfg.playbackSpeed,total-1);
+    document.getElementById('progress-bar').style.width=(playIdx/(total-1)*100).toFixed(1)+'%';
+    var p=igcPoints[playIdx], h=Math.floor(p.t/3600), m=Math.floor((p.t%3600)/60), s=p.t%60;
+    document.getElementById('time-disp').textContent=('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+s).slice(-2)+' UTC';
+    if(!cameraStream) drawFrame();
+    if(playIdx>=total-1) clearInterval(playTimer);
+  },50);
 });
 
-window.addEventListener('resize', () => {
-  if (document.getElementById('panel-ar').style.display !== 'none') resizeCanvas();
+document.getElementById('btn-stop').addEventListener('click', function(){
+  if(playTimer){ clearInterval(playTimer); playTimer=null; }
 });
-showTab('upload');
+
+document.getElementById('sl-speed').addEventListener('input', function(){
+  cfg.playbackSpeed=parseInt(this.value);
+  document.getElementById('speed-val').textContent=this.value+'x';
+});
+
+window.addEventListener('resize', function(){
+  if(document.getElementById('panel-ar').classList.contains('active')) resizeCanvas();
+});
 </script>
 </body>
 </html>
