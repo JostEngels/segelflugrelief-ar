@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Segelflug AR</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, sans-serif); background: var(--color-background-tertiary); color: var(--color-text-primary); min-height: 100vh; }
+
+  #app { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* --- HEADER --- */
+  #header { padding: 1rem 1.25rem 0.75rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  #header h1 { font-size: 18px; font-weight: 500; letter-spacing: -0.3px; }
+  #header p { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
+
+  /* --- STEPS --- */
+  #steps { display: flex; gap: 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .step-btn { flex: 1; padding: 0.6rem; font-size: 12px; font-weight: 500; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; color: var(--color-text-secondary); transition: all 0.2s; }
+  .step-btn.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); }
+  .step-btn.done { color: var(--color-text-success); }
+
+  /* --- CONTENT --- */
+  #content { flex: 1; padding: 1.25rem; }
+
+  /* --- UPLOAD PANEL --- */
+  #panel-upload { display: flex; flex-direction: column; gap: 1rem; }
+  .drop-zone { border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 2rem 1rem; text-align: center; cursor: pointer; transition: background 0.2s; }
+  .drop-zone:hover { background: var(--color-background-secondary); }
+  .drop-zone input { display: none; }
+  .drop-zone .icon { font-size: 28px; margin-bottom: 0.5rem; }
+  .drop-zone p { font-size: 14px; color: var(--color-text-secondary); }
+  .drop-zone .hint { font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+  
+  #igc-info { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; display: none; }
+  #igc-info h3 { font-size: 14px; font-weight: 500; margin-bottom: 0.5rem; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .info-item label { font-size: 11px; color: var(--color-text-secondary); display: block; }
+  .info-item span { font-size: 14px; font-weight: 500; }
+
+  #map-upload-zone { border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 1.5rem 1rem; text-align: center; cursor: pointer; }
+  #map-upload-zone input { display: none; }
+  #map-preview { width: 100%; border-radius: var(--border-radius-md); margin-top: 0.5rem; display: none; max-height: 180px; object-fit: cover; }
+
+  /* --- AR PANEL --- */
+  #panel-ar { display: none; flex-direction: column; gap: 0; position: relative; }
+  #ar-container { position: relative; width: 100%; aspect-ratio: 9/16; background: #000; border-radius: var(--border-radius-lg); overflow: hidden; }
+  #camera-video { width: 100%; height: 100%; object-fit: cover; display: none; }
+  #camera-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #111; color: #555; gap: 0.5rem; }
+  #camera-placeholder p { font-size: 13px; }
+  #ar-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+  #ar-hud { position: absolute; top: 0; left: 0; right: 0; padding: 0.75rem; display: flex; justify-content: space-between; align-items: flex-start; }
+  .hud-badge { background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #fff; font-weight: 500; }
+  #ar-bottom { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.75rem; }
+  #progress-bar-wrap { background: rgba(0,0,0,0.4); border-radius: 100px; height: 4px; margin-bottom: 8px; }
+  #progress-bar { height: 4px; background: #4af; border-radius: 100px; width: 0%; transition: width 0.3s; }
+  #time-display { font-size: 12px; color: rgba(255,255,255,0.7); text-align: center; }
+
+  #ar-controls { display: flex; gap: 8px; margin-top: 0.75rem; flex-wrap: wrap; }
+  #ar-controls button { flex: 1; min-width: 100px; padding: 0.6rem 0.5rem; font-size: 13px; font-weight: 500; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); cursor: pointer; color: var(--color-text-primary); }
+  #ar-controls button:active { opacity: 0.7; }
+  #btn-camera { border-color: #4af !important; color: #4af !important; }
+  #btn-start-fly { border-color: #4c4 !important; color: #4c4 !important; }
+
+  #slider-wrap { margin-top: 0.75rem; }
+  #slider-wrap label { font-size: 12px; color: var(--color-text-secondary); display: flex; justify-content: space-between; margin-bottom: 4px; }
+  #speed-slider { width: 100%; }
+
+  /* --- CALIBRATION --- */
+  #panel-cal { display: none; flex-direction: column; gap: 1rem; }
+  .cal-section { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; }
+  .cal-section h3 { font-size: 14px; font-weight: 500; margin-bottom: 0.75rem; }
+  .cal-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; margin-bottom: 0.5rem; }
+  .cal-row span { color: var(--color-text-secondary); }
+  .cal-val { font-weight: 500; min-width: 60px; text-align: right; }
+  input[type=range].cal-input { width: 100%; margin-top: 4px; }
+  .permission-btn { width: 100%; padding: 0.7rem; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); font-size: 14px; font-weight: 500; cursor: pointer; color: var(--color-text-primary); }
+  .permission-btn.granted { border-color: #4c4; color: #4c4; }
+
+  /* --- NEXT BUTTON --- */
+  #btn-next { width: 100%; padding: 0.75rem; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); font-size: 14px; font-weight: 500; cursor: pointer; color: var(--color-text-primary); margin-top: 0.5rem; }
+  #btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .tag-ok { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4c4; margin-right: 4px; }
+  .tag-no { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #c44; margin-right: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <h1>Segelflug AR</h1>
+    <p>IGC-Flugpfad über Kamera-Live-Bild legen</p>
+  </div>
+
+  <div id="steps">
+    <button class="step-btn active" id="tab-upload" onclick="showTab('upload')">1 · Daten</button>
+    <button class="step-btn" id="tab-cal" onclick="showTab('cal')">2 · Kalibrierung</button>
+    <button class="step-btn" id="tab-ar" onclick="showTab('ar')">3 · AR-Ansicht</button>
+  </div>
+
+  <div id="content">
+
+    <!-- STEP 1 -->
+    <div id="panel-upload">
+      <div class="drop-zone" onclick="document.getElementById('igc-file').click()">
+        <div class="icon">🪂</div>
+        <p>IGC-Datei laden</p>
+        <div class="hint">.igc — Flugcomputer-Aufzeichnung</div>
+        <input type="file" id="igc-file" accept=".igc" onchange="loadIGC(this)">
+      </div>
+
+      <div id="igc-info">
+        <h3>Flug erkannt</h3>
+        <div class="info-grid">
+          <div class="info-item"><label>Datum</label><span id="info-date">–</span></div>
+          <div class="info-item"><label>Dauer</label><span id="info-dur">–</span></div>
+          <div class="info-item"><label>Punkte</label><span id="info-pts">–</span></div>
+          <div class="info-item"><label>Max. Höhe</label><span id="info-alt">–</span></div>
+          <div class="info-item"><label>Startpunkt</label><span id="info-start">–</span></div>
+          <div class="info-item"><label>Strecke ~</label><span id="info-dist">–</span></div>
+        </div>
+      </div>
+
+      <div id="map-upload-zone" onclick="document.getElementById('map-file').click()">
+        <div class="icon">🗺</div>
+        <p style="font-size:14px; color:var(--color-text-secondary)">Reliefkarte laden (optional)</p>
+        <div style="font-size:12px; color:var(--color-text-tertiary); margin-top:4px">.jpg / .png / .webp</div>
+        <input type="file" id="map-file" accept="image/*" onchange="loadMap(this)">
+        <img id="map-preview">
+      </div>
+
+      <button id="btn-next" disabled onclick="showTab('cal')">Weiter zur Kalibrierung →</button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="panel-cal">
+      <div class="cal-section">
+        <h3>Berechtigungen</h3>
+        <button class="permission-btn" id="btn-cam-perm" onclick="requestCamera()">
+          <span class="tag-no" id="dot-cam"></span> Kamera freigeben
+        </button>
+        <button class="permission-btn" style="margin-top:8px" id="btn-orient-perm" onclick="requestOrientation()">
+          <span class="tag-no" id="dot-orient"></span> Kompass / Lagesensor
+        </button>
+      </div>
+
+      <div class="cal-section">
+        <h3>Overlay-Einstellungen</h3>
+        <div class="cal-row">
+          <span>Flugpfad-Skalierung</span>
+          <span class="cal-val" id="val-scale">1.0×</span>
+        </div>
+        <input type="range" class="cal-input" min="0.2" max="5" step="0.1" value="1" oninput="document.getElementById('val-scale').textContent=parseFloat(this.value).toFixed(1)+'×'; cfg.scale=parseFloat(this.value)">
+
+        <div class="cal-row" style="margin-top:0.75rem">
+          <span>Horizontaler Versatz</span>
+          <span class="cal-val" id="val-offx">0°</span>
+        </div>
+        <input type="range" class="cal-input" min="-180" max="180" step="1" value="0" oninput="document.getElementById('val-offx').textContent=this.value+'°'; cfg.headingOffset=parseInt(this.value)">
+
+        <div class="cal-row" style="margin-top:0.75rem">
+          <span>Pfad-Farbe</span>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:4px">
+          <button onclick="cfg.color='#44aaff'; setColorBtns(this)" class="col-btn" style="flex:1; height:28px; background:#44aaff; border:2px solid #fff; border-radius:6px; cursor:pointer"></button>
+          <button onclick="cfg.color='#ff6633'; setColorBtns(this)" class="col-btn" style="flex:1; height:28px; background:#ff6633; border:0.5px solid var(--color-border-secondary); border-radius:6px; cursor:pointer"></button>
+          <button onclick="cfg.color='#44ff88'; setColorBtns(this)" class="col-btn" style="flex:1; height:28px; background:#44ff88; border:0.5px solid var(--color-border-secondary); border-radius:6px; cursor:pointer"></button>
+          <button onclick="cfg.color='#ffdd00'; setColorBtns(this)" class="col-btn" style="flex:1; height:28px; background:#ffdd00; border:0.5px solid var(--color-border-secondary); border-radius:6px; cursor:pointer"></button>
+        </div>
+      </div>
+
+      <button id="btn-next2" onclick="showTab('ar')" style="width:100%; padding:0.75rem; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-secondary); background:var(--color-background-primary); font-size:14px; font-weight:500; cursor:pointer; color:var(--color-text-primary); margin-top:0.25rem">
+        Zur AR-Ansicht →
+      </button>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="panel-ar">
+      <div id="ar-container">
+        <video id="camera-video" autoplay playsinline muted></video>
+        <div id="camera-placeholder">
+          <span style="font-size:32px">📷</span>
+          <p>Kamera nicht aktiv</p>
+        </div>
+        <canvas id="ar-canvas"></canvas>
+        <div id="ar-hud">
+          <div class="hud-badge" id="hud-heading">↑ 0°</div>
+          <div class="hud-badge" id="hud-alt">– m</div>
+        </div>
+        <div id="ar-bottom">
+          <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+          <div id="time-display">–</div>
+        </div>
+      </div>
+
+      <div id="ar-controls">
+        <button id="btn-camera" onclick="startCamera()">▶ Kamera</button>
+        <button id="btn-start-fly" onclick="startPlayback()">▷ Wiedergabe</button>
+        <button onclick="stopPlayback()" style="border-color:#c44 !important; color:#c44 !important">■ Stop</button>
+      </div>
+
+      <div id="slider-wrap">
+        <label>Wiedergabe-Geschwindigkeit <span id="speed-val">10×</span></label>
+        <input type="range" id="speed-slider" min="1" max="100" value="10" step="1" oninput="document.getElementById('speed-val').textContent=this.value+'×'; cfg.playbackSpeed=parseInt(this.value)">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- STATE ----
+let igcPoints = [];
+let mapImg = null;
+let cfg = { scale: 1.0, headingOffset: 0, color: '#44aaff', playbackSpeed: 10 };
+let heading = 0;
+let playbackTimer = null;
+let playIdx = 0;
+let cameraStream = null;
+let cameraActive = false;
+let orientGranted = false;
+
+// ---- TAB NAV ----
+function showTab(t) {
+  ['upload','cal','ar'].forEach(n => {
+    document.getElementById('panel-'+n).style.display = 'none';
+    document.getElementById('tab-'+n).classList.remove('active');
+  });
+  document.getElementById('panel-'+t).style.display = 'flex';
+  document.getElementById('tab-'+t).classList.add('active');
+  if (t === 'ar') { resizeCanvas(); drawFrame(); }
+}
+
+// ---- IGC PARSER ----
+function loadIGC(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    igcPoints = parseIGC(e.target.result);
+    if (igcPoints.length < 2) { alert('Keine gültigen B-Records gefunden.'); return; }
+    showIGCInfo(file.name);
+    document.getElementById('btn-next').disabled = false;
+    document.getElementById('tab-upload').classList.add('done');
+  };
+  reader.readAsText(file);
+}
+
+function parseIGC(text) {
+  const lines = text.split('\n');
+  const pts = [];
+  let dateStr = '';
+  for (const line of lines) {
+    const l = line.trim();
+    if (l.startsWith('HFDTE') || l.startsWith('HPDTE')) {
+      const m = l.match(/(\d{2})(\d{2})(\d{2})/);
+      if (m) dateStr = `20${m[3]}-${m[2]}-${m[1]}`;
+    }
+    if (l.startsWith('B') && l.length >= 35) {
+      const hh = parseInt(l.slice(1,3)), mm = parseInt(l.slice(3,5)), ss = parseInt(l.slice(5,7));
+      const latD = parseInt(l.slice(7,9)), latM = parseFloat(l.slice(9,14))/1000;
+      const latHem = l[14];
+      const lonD = parseInt(l.slice(15,18)), lonM = parseFloat(l.slice(18,23))/1000;
+      const lonHem = l[23];
+      const valid = l[24];
+      const altBaro = parseInt(l.slice(25,30));
+      const altGPS = parseInt(l.slice(30,35));
+      let lat = latD + latM/60; if (latHem === 'S') lat = -lat;
+      let lon = lonD + lonM/60; if (lonHem === 'W') lon = -lon;
+      if (valid === 'A' || valid === 'V') {
+        pts.push({ time: hh*3600+mm*60+ss, lat, lon, alt: altBaro || altGPS, dateStr });
+      }
+    }
+  }
+  return pts;
+}
+
+function showIGCInfo(fname) {
+  if (!igcPoints.length) return;
+  const first = igcPoints[0], last = igcPoints[igcPoints.length-1];
+  const dur = last.time - first.time;
+  const hh = Math.floor(dur/3600), mm = Math.floor((dur%3600)/60);
+  const maxAlt = Math.max(...igcPoints.map(p=>p.alt));
+  let dist = 0;
+  for (let i = 1; i < igcPoints.length; i++) dist += haversine(igcPoints[i-1], igcPoints[i]);
+  document.getElementById('info-date').textContent = first.dateStr || '–';
+  document.getElementById('info-dur').textContent = `${hh}h ${mm}m`;
+  document.getElementById('info-pts').textContent = igcPoints.length;
+  document.getElementById('info-alt').textContent = maxAlt + ' m';
+  document.getElementById('info-start').textContent = `${first.lat.toFixed(3)}, ${first.lon.toFixed(3)}`;
+  document.getElementById('info-dist').textContent = Math.round(dist) + ' km';
