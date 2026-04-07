@@ -137,7 +137,7 @@ input[type=range] { width: 100%; accent-color: #4af; margin-top: 4px; }
         <img id="map-preview">
       </div>
 
-      <button class="next-btn" id="btn-next" disabled onclick="showTab('cal')">Weiter zur Einstellung →</button>
+      <button class="next-btn" id="btn-next" onclick="showTab('cal')">Weiter zur Einstellung →</button>
     </div>
 
     <!-- STEP 2 -->
@@ -538,7 +538,7 @@ function drawFrame() {
 
 // ---- PLAYBACK ----
 function startPlayback() {
-  if (!igcPoints.length) { alert('Keine IGC-Datei geladen.'); return; }
+  if (!igcPoints.length) { alert('Bitte zuerst eine IGC-Datei in Schritt 1 laden.'); return; }
   stopPlayback();
   playIdx = 0;
   const total = igcPoints.length;
