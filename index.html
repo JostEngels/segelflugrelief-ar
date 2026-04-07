@@ -5,125 +5,128 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Segelflug AR</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0a0a0f; color: #e8e8f0; min-height: 100vh; }
 #app { display: flex; flex-direction: column; min-height: 100vh; max-width: 480px; margin: 0 auto; }
-#header { padding: 1rem 1.25rem 0.75rem; border-bottom: 1px solid #1e1e2e; }
-#header h1 { font-size: 20px; font-weight: 600; }
-#header p { font-size: 13px; color: #666; margin-top: 2px; }
-#steps { display: flex; border-bottom: 1px solid #1e1e2e; }
-.tab { flex: 1; padding: 0.65rem 0.25rem; font-size: 12px; font-weight: 500; background: none; border: none; border-bottom: 2px solid transparent; color: #555; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.tab.active { color: #e8e8f0; border-bottom-color: #4af; }
-.tab.done { color: #4c4; }
-#content { flex: 1; padding: 1.25rem; }
-.panel { display: none; flex-direction: column; gap: 1rem; }
+#header { padding: 0.9rem 1.1rem 0.6rem; border-bottom: 1px solid #1e1e2e; }
+#header h1 { font-size: 19px; font-weight: 700; }
+#header p { font-size: 12px; color: #555; margin-top: 1px; }
+#tabs { display: flex; border-bottom: 1px solid #1e1e2e; }
+.tab { flex: 1; padding: 0.65rem 0.2rem; font-size: 11px; font-weight: 700; background: none; border: none; border-bottom: 2px solid transparent; color: #444; cursor: pointer; }
+.tab.active { color: #4af; border-bottom-color: #4af; }
+.tab.done { color: #4d4; }
+#content { flex: 1; padding: 0.9rem; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.panel { display: none; flex-direction: column; gap: 0.8rem; }
 .panel.active { display: flex; }
-.card { background: #111118; border: 1px solid #1e1e2e; border-radius: 12px; padding: 1.25rem; text-align: center; }
-.card .icon { font-size: 28px; margin-bottom: 0.5rem; }
-.card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-.card .hint { font-size: 12px; color: #555; margin-bottom: 12px; }
-.card input[type=file] { display: block; width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #2a2a3e; background: #16161f; color: #e8e8f0; font-size: 13px; cursor: pointer; }
-.card input[type=file]::-webkit-file-upload-button { background: rgba(68,170,255,0.12); border: 1px solid #4af; border-radius: 6px; color: #4af; padding: 4px 14px; font-size: 13px; cursor: pointer; margin-right: 10px; }
-.file-status { font-size: 13px; color: #4af; margin-top: 8px; min-height: 18px; }
-#map-preview { width: 100%; border-radius: 8px; margin-top: 0.75rem; display: none; max-height: 150px; object-fit: cover; opacity: 0.8; }
-#igc-info { background: #111118; border: 1px solid #1e1e2e; border-radius: 10px; padding: 1rem; display: none; }
-#igc-info h3 { font-size: 11px; font-weight: 600; color: #4af; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem; }
-.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.info-item label { font-size: 11px; color: #555; display: block; margin-bottom: 2px; }
-.info-item span { font-size: 15px; font-weight: 600; }
-.cal-card { background: #111118; border: 1px solid #1e1e2e; border-radius: 10px; padding: 1rem; }
-.cal-card h3 { font-size: 11px; font-weight: 600; color: #aaa; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem; }
-.cal-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #888; margin-bottom: 6px; }
-.cal-val { font-weight: 600; color: #e8e8f0; }
-input[type=range] { width: 100%; accent-color: #4af; margin-top: 4px; margin-bottom: 8px; }
-.perm-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid #2a2a3e; background: #16161f; font-size: 14px; font-weight: 500; cursor: pointer; color: #e8e8f0; margin-bottom: 8px; -webkit-tap-highlight-color: transparent; text-align: left; }
-.perm-btn.granted { border-color: #4c4; color: #4c4; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: #c44; flex-shrink: 0; }
-.dot.ok { background: #4c4; }
-.color-row { display: flex; gap: 8px; margin-top: 6px; }
-.col-btn { flex: 1; height: 30px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; -webkit-tap-highlight-color: transparent; }
+.card { background: #111120; border: 1px solid #1e1e2e; border-radius: 11px; padding: 0.9rem; }
+.card-title { font-size: 10px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.7rem; }
+.card-center { text-align: center; }
+.icon { font-size: 26px; margin-bottom: 5px; }
+.card h3 { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+.hint { font-size: 12px; color: #555; margin-bottom: 9px; }
+.status { font-size: 13px; color: #4af; margin-top: 5px; min-height: 17px; text-align: center; }
+input[type=file] { display: block; width: 100%; font-size: 14px; color: #aaa; background: #0d0d1a; border: 1px solid #2a2a3e; border-radius: 8px; padding: 7px 9px; cursor: pointer; }
+input[type=file]::file-selector-button { background: #0d1a2a; border: 1px solid #4af; border-radius: 5px; color: #4af; padding: 4px 12px; font-size: 13px; cursor: pointer; margin-right: 9px; }
+#igc-info { background: #0d0d1a; border: 1px solid #1e1e2e; border-radius: 10px; padding: 0.9rem; display: none; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.info-item label { font-size: 10px; color: #555; display: block; margin-bottom: 1px; }
+.info-item span { font-size: 14px; font-weight: 600; }
+#map-preview { width: 100%; border-radius: 8px; margin-top: 0.6rem; display: none; max-height: 140px; object-fit: cover; opacity: 0.75; }
+.cal-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #777; margin-bottom: 5px; }
+.cal-val { font-weight: 700; color: #e8e8f0; }
+input[type=range] { width: 100%; accent-color: #4af; margin-top: 3px; margin-bottom: 9px; }
+.color-row { display: flex; gap: 7px; margin-top: 5px; }
+.col-btn { flex: 1; height: 28px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; }
 .col-btn.sel { border-color: #fff; }
-#ar-container { position: relative; width: 100%; aspect-ratio: 9/16; background: #000; border-radius: 12px; overflow: hidden; }
-#camera-video { width: 100%; height: 100%; object-fit: cover; display: none; }
-#cam-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #0a0a14; color: #333; gap: 0.5rem; }
-#ar-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-#ar-hud { position: absolute; top: 0; left: 0; right: 0; padding: 0.75rem; display: flex; justify-content: space-between; }
-.badge { background: rgba(0,0,0,0.6); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
-#ar-bottom { position: absolute; bottom: 0; left: 0; right: 0; padding: 0.75rem; background: linear-gradient(transparent, rgba(0,0,0,0.6)); }
-#progress-wrap { background: rgba(255,255,255,0.15); border-radius: 100px; height: 3px; margin-bottom: 6px; }
-#progress-bar { height: 3px; background: #4af; border-radius: 100px; width: 0%; }
-#time-disp { font-size: 12px; color: rgba(255,255,255,0.6); text-align: center; font-variant-numeric: tabular-nums; }
-.ar-btns { display: flex; gap: 8px; }
-.ar-btn { flex: 1; padding: 0.65rem; font-size: 13px; font-weight: 500; border-radius: 8px; border: 1px solid #2a2a3e; background: #16161f; cursor: pointer; color: #e8e8f0; -webkit-tap-highlight-color: transparent; }
-.ar-btn.cam { border-color: #4af; color: #4af; }
-.ar-btn.play { border-color: #4c4; color: #4c4; }
-.ar-btn.stop { border-color: #c44; color: #c44; }
-.speed-row { }
-.speed-row label { font-size: 12px; color: #555; display: flex; justify-content: space-between; margin-bottom: 4px; }
-.speed-row label span { color: #e8e8f0; font-weight: 600; }
-.next-btn { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #2a2a3e; background: #16161f; font-size: 14px; font-weight: 500; cursor: pointer; color: #e8e8f0; -webkit-tap-highlight-color: transparent; }
+#ar-container { position: relative; width: 100%; aspect-ratio: 9/16; background: #000; border-radius: 11px; overflow: hidden; }
+#camera-video { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; display:none; }
+#cam-placeholder { position: absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#090914; color:#444; gap:0.5rem; cursor:pointer; }
+#ar-canvas { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+#ar-hud { position: absolute; top:0; left:0; right:0; padding:0.65rem; display:flex; justify-content:space-between; }
+.badge { background: rgba(0,0,0,0.65); border-radius:6px; padding:3px 9px; font-size:12px; color:#fff; font-weight:700; font-variant-numeric:tabular-nums; }
+#ar-bottom { position:absolute; bottom:0; left:0; right:0; padding:0.65rem; background:linear-gradient(transparent,rgba(0,0,0,0.7)); }
+#progress-wrap { background:rgba(255,255,255,0.15); border-radius:100px; height:3px; margin-bottom:5px; }
+#progress-bar { height:3px; background:#4af; border-radius:100px; width:0%; }
+#time-disp { font-size:11px; color:rgba(255,255,255,0.5); text-align:center; font-variant-numeric:tabular-nums; }
+.btn { padding:0.65rem 0.5rem; font-size:13px; font-weight:600; border-radius:8px; border:1px solid #2a2a3e; background:#111120; cursor:pointer; color:#e8e8f0; display:block; width:100%; }
+.btn-row { display:flex; gap:7px; }
+.btn-row .btn { flex:1; }
+.btn.blue { border-color:#4af; color:#4af; }
+.btn.green { border-color:#4d4; color:#4d4; }
+.btn.red { border-color:#d44; color:#d44; }
+.btn.cam { border-color:#4af; color:#4af; font-size:15px; padding:0.9rem; }
+/* CALIBRATION OVERLAY */
+#cal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#000; z-index:100; flex-direction:column; max-width:480px; margin:0 auto; }
+#cal-overlay.active { display:flex; }
+#cal-header { padding:0.75rem 1rem; background:#0a0a0f; border-bottom:1px solid #1e1e2e; display:flex; align-items:center; gap:0.75rem; }
+#cal-header h2 { font-size:15px; font-weight:700; flex:1; }
+#cal-close { background:none; border:none; color:#d44; font-size:14px; font-weight:700; cursor:pointer; padding:4px 10px; }
+#cal-instruction { padding:0.6rem 1rem; background:#0d0d18; border-bottom:1px solid #1e1e2e; font-size:13px; color:#e8e8f0; text-align:center; }
+#cal-instruction strong { color:#4af; }
+#cal-progress { padding:0.4rem 1rem; background:#0a0a0f; border-bottom:1px solid #1e1e2e; display:flex; gap:6px; justify-content:center; }
+.cal-dot { width:28px; height:6px; border-radius:3px; background:#1e1e2e; }
+.cal-dot.done-dot { background:#4d4; }
+.cal-dot.active-dot { background:#4af; }
+#cal-canvas-wrap { flex:1; position:relative; overflow:hidden; }
+#cal-canvas { width:100%; height:100%; display:block; object-fit:contain; cursor:crosshair; touch-action:none; }
+#cal-done-btn { margin:0.75rem; }
 </style>
 </head>
 <body>
 <div id="app">
   <div id="header">
     <h1>&#x26F5; Segelflug AR</h1>
-    <p>IGC-Flugpfad live über die Kamera legen</p>
+    <p>IGC-Flugpfad live &#xFC;ber die Kamera legen</p>
   </div>
-
-  <div id="steps">
-    <button class="tab active" id="tab-upload">1 · Flugdaten</button>
-    <button class="tab" id="tab-cal">2 · Einstellung</button>
-    <button class="tab" id="tab-ar">3 · AR-Ansicht</button>
+  <div id="tabs">
+    <button class="tab active" id="tab-upload">1&#xB7;Flugdaten</button>
+    <button class="tab" id="tab-cal">2&#xB7;Einstellung</button>
+    <button class="tab" id="tab-ar">3&#xB7;AR-Ansicht</button>
   </div>
-
   <div id="content">
 
+    <!-- STEP 1 -->
     <div class="panel active" id="panel-upload">
-      <div class="card">
+      <div class="card card-center">
         <div class="icon">&#x1FA82;</div>
         <h3>IGC-Flugdatei</h3>
         <div class="hint">Flugcomputer-Aufzeichnung (.igc)</div>
         <input type="file" id="igc-input">
-        <div class="file-status" id="igc-status"></div>
+        <div class="status" id="igc-status"></div>
       </div>
       <div id="igc-info">
-        <h3>Flug erkannt</h3>
+        <div class="card-title">Flug erkannt</div>
         <div class="info-grid">
-          <div class="info-item"><label>Datum</label><span id="info-date">-</span></div>
-          <div class="info-item"><label>Dauer</label><span id="info-dur">-</span></div>
-          <div class="info-item"><label>GPS-Punkte</label><span id="info-pts">-</span></div>
-          <div class="info-item"><label>Max. Hoehe</label><span id="info-alt">-</span></div>
-          <div class="info-item"><label>Start</label><span id="info-start">-</span></div>
-          <div class="info-item"><label>Strecke</label><span id="info-dist">-</span></div>
+          <div class="info-item"><label>Datum</label><span id="info-date">&#x2013;</span></div>
+          <div class="info-item"><label>Dauer</label><span id="info-dur">&#x2013;</span></div>
+          <div class="info-item"><label>GPS-Punkte</label><span id="info-pts">&#x2013;</span></div>
+          <div class="info-item"><label>Max. H&#xF6;he</label><span id="info-alt">&#x2013;</span></div>
+          <div class="info-item"><label>Start</label><span id="info-start">&#x2013;</span></div>
+          <div class="info-item"><label>Strecke</label><span id="info-dist">&#x2013;</span></div>
         </div>
       </div>
-      <div class="card">
+      <div class="card card-center">
         <div class="icon">&#x1F5FA;&#xFE0F;</div>
         <h3>Reliefkarte <span style="color:#555;font-weight:400;font-size:13px">(optional)</span></h3>
-        <div class="hint">.jpg / .png als Mini-Karte im Overlay</div>
+        <div class="hint">.jpg / .png &#x2014; dann Karte kalibrieren</div>
         <input type="file" id="map-input" accept="image/*">
         <img id="map-preview">
+        <button class="btn blue" id="btn-calibrate" style="margin-top:0.6rem;display:none">&#x1F4CD; Karte kalibrieren (St&#xE4;dte antippen)</button>
+        <div class="status" id="cal-status"></div>
       </div>
-      <button class="next-btn" id="btn-to-cal">Weiter zur Einstellung &#x2192;</button>
+      <button class="btn" id="btn-to-cal">Weiter zur Einstellung &#x2192;</button>
     </div>
 
+    <!-- STEP 2 -->
     <div class="panel" id="panel-cal">
-      <div class="cal-card">
-        <h3>Berechtigungen</h3>
-        <button class="perm-btn" id="btn-cam">
-          <span class="dot" id="dot-cam"></span><span>Kamera freigeben</span>
-        </button>
-        <button class="perm-btn" id="btn-orient">
-          <span class="dot" id="dot-orient"></span><span>Kompass / Lagesensor</span>
-        </button>
-      </div>
-      <div class="cal-card">
-        <h3>Overlay-Einstellungen</h3>
-        <div class="cal-row"><span>Pfad-Skalierung</span><span class="cal-val" id="val-scale">1.0x</span></div>
+      <div class="card">
+        <div class="card-title">Overlay-Einstellungen</div>
+        <div class="cal-row"><span>Pfad-Skalierung</span><span class="cal-val" id="val-scale">1.0&#xD7;</span></div>
         <input type="range" min="0.2" max="5" step="0.1" value="1" id="sl-scale">
-        <div class="cal-row"><span>Kompass-Offset</span><span class="cal-val" id="val-offset">0 Grad</span></div>
+        <div class="cal-row"><span>Kompass-Offset</span><span class="cal-val" id="val-offset">0&#xB0;</span></div>
         <input type="range" min="-180" max="180" step="1" value="0" id="sl-offset">
+        <div class="cal-row"><span>Karten-Transparenz</span><span class="cal-val" id="val-alpha">50%</span></div>
+        <input type="range" min="0" max="100" step="5" value="50" id="sl-alpha">
         <div class="cal-row"><span>Pfad-Farbe</span></div>
         <div class="color-row">
           <button class="col-btn sel" style="background:#44aaff" data-color="#44aaff"></button>
@@ -132,334 +135,509 @@ input[type=range] { width: 100%; accent-color: #4af; margin-top: 4px; margin-bot
           <button class="col-btn" style="background:#ffdd00" data-color="#ffdd00"></button>
         </div>
       </div>
-      <button class="next-btn" id="btn-to-ar">Zur AR-Ansicht &#x2192;</button>
+      <button class="btn" id="btn-to-ar">Zur AR-Ansicht &#x2192;</button>
     </div>
 
+    <!-- STEP 3 -->
     <div class="panel" id="panel-ar">
       <div id="ar-container">
         <video id="camera-video" autoplay playsinline muted></video>
         <div id="cam-placeholder">
-          <span style="font-size:36px">&#x1F4F7;</span>
-          <p style="font-size:13px">Kamera nicht aktiv</p>
+          <span style="font-size:42px">&#x1F4F7;</span>
+          <p style="font-size:14px">Tippen um Kamera zu starten</p>
         </div>
         <canvas id="ar-canvas"></canvas>
         <div id="ar-hud">
-          <div class="badge" id="hud-heading">N 0&#xB0;</div>
-          <div class="badge" id="hud-alt">- m</div>
+          <div class="badge" id="hud-heading">&#x2191; 0&#xB0;</div>
+          <div class="badge" id="hud-alt">&#x2013; m</div>
         </div>
         <div id="ar-bottom">
           <div id="progress-wrap"><div id="progress-bar"></div></div>
-          <div id="time-disp">-</div>
+          <div id="time-disp">&#x2013;</div>
         </div>
       </div>
-      <div class="ar-btns">
-        <button class="ar-btn cam" id="btn-start-cam">&#x25B6; Kamera</button>
-        <button class="ar-btn play" id="btn-play">&#x25B7; Wiedergabe</button>
-        <button class="ar-btn stop" id="btn-stop">&#x25A0; Stop</button>
+      <button class="btn cam" id="btn-start-cam">&#x1F4F7; Kamera starten</button>
+      <div class="btn-row">
+        <button class="btn green" id="btn-play">&#x25B7; Wiedergabe</button>
+        <button class="btn red" id="btn-stop">&#x25A0; Stop</button>
       </div>
-      <div class="speed-row">
-        <label>Geschwindigkeit <span id="speed-val">10x</span></label>
+      <div style="margin-top:4px">
+        <div class="cal-row"><span style="font-size:12px;color:#555">Geschwindigkeit</span><span class="cal-val" id="speed-val">10&#xD7;</span></div>
         <input type="range" min="1" max="100" value="10" step="1" id="sl-speed">
       </div>
     </div>
-
   </div>
 </div>
-<script>
-var igcPoints = [];
-var mapImg = null;
-var cfg = { scale: 1.0, headingOffset: 0, color: '#44aaff', playbackSpeed: 10 };
-var heading = 0;
-var playTimer = null;
-var playIdx = 0;
-var cameraStream = null;
-var canvas, ctx, rafId;
 
-// NAV
-function showTab(name) {
-  ['upload','cal','ar'].forEach(function(t) {
+<!-- CALIBRATION OVERLAY -->
+<div id="cal-overlay">
+  <div id="cal-header">
+    <h2>&#x1F5FA;&#xFE0F; Karte kalibrieren</h2>
+    <button id="cal-close">Abbrechen</button>
+  </div>
+  <div id="cal-instruction">Tippe auf: <strong id="cal-city-name">&#x2013;</strong></div>
+  <div id="cal-progress"></div>
+  <div id="cal-canvas-wrap">
+    <canvas id="cal-canvas"></canvas>
+  </div>
+  <button class="btn green" id="cal-done-btn" style="display:none">&#x2713; Kalibrierung abschlie&#xDF;en</button>
+</div>
+
+<script>
+// ---- REFERENCE CITIES ----
+var CITIES = [
+  {name:'Puimoisson',  lat:43.8755, lon:6.0974},
+  {name:'Gap',         lat:44.5594, lon:6.0786},
+  {name:'Valensole',   lat:43.8370, lon:5.9834},
+  {name:'Manosque',    lat:43.8342, lon:5.7839},
+  {name:'Sisteron',    lat:44.1946, lon:5.9430},
+  {name:'Moustiers',   lat:43.8455, lon:6.2205},
+  {name:'Digne',       lat:44.0921, lon:6.2358}
+];
+var MIN_POINTS = 3;
+
+// ---- STATE ----
+var igcPoints=[], mapImg=null;
+var cfg={scale:1.0, headingOffset:0, color:'#44aaff', speed:10, alpha:0.5};
+var heading=0, playTimer=null, playIdx=0, cameraStream=null;
+var arCanvas, arCtx, rafId;
+// Affine transform state
+var calPoints=[]; // {px, py, lat, lon, cityIdx}
+var affine=null;  // {a,b,c,d,e,f} for pixel->geo; {A,B,C,D,E,F} for geo->pixel
+var calCityIdx=0;
+var calCanvas, calCtx;
+
+// ---- TABS ----
+function showTab(n){
+  ['upload','cal','ar'].forEach(function(t){
     document.getElementById('panel-'+t).classList.remove('active');
     document.getElementById('tab-'+t).classList.remove('active');
   });
-  document.getElementById('panel-'+name).classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
-  if (name === 'ar') setTimeout(function(){ resizeCanvas(); drawFrame(); }, 60);
+  document.getElementById('panel-'+n).classList.add('active');
+  document.getElementById('tab-'+n).classList.add('active');
+  if(n==='ar'){setTimeout(function(){resizeAR();drawFrame();},80); requestOrient();}
 }
-document.getElementById('tab-upload').addEventListener('click', function(){ showTab('upload'); });
-document.getElementById('tab-cal').addEventListener('click', function(){ showTab('cal'); });
-document.getElementById('tab-ar').addEventListener('click', function(){ showTab('ar'); });
-document.getElementById('btn-to-cal').addEventListener('click', function(){ showTab('cal'); });
-document.getElementById('btn-to-ar').addEventListener('click', function(){ showTab('ar'); });
+document.getElementById('tab-upload').addEventListener('click',function(){showTab('upload');});
+document.getElementById('tab-cal').addEventListener('click',function(){showTab('cal');});
+document.getElementById('tab-ar').addEventListener('click',function(){showTab('ar');});
+document.getElementById('btn-to-cal').addEventListener('click',function(){showTab('cal');});
+document.getElementById('btn-to-ar').addEventListener('click',function(){showTab('ar');});
 
-// IGC
-document.getElementById('igc-input').addEventListener('change', function() {
-  var file = this.files && this.files[0];
-  if (!file) return;
-  document.getElementById('igc-status').textContent = 'Wird geladen...';
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var pts = parseIGC(e.target.result);
-    if (pts.length < 2) {
-      document.getElementById('igc-status').textContent = 'Keine GPS-Punkte gefunden';
-      return;
-    }
-    igcPoints = pts;
-    document.getElementById('igc-status').textContent = pts.length + ' GPS-Punkte geladen';
+// ---- IGC ----
+document.getElementById('igc-input').addEventListener('change',function(){
+  var file=this.files&&this.files[0]; if(!file) return;
+  document.getElementById('igc-status').textContent='Wird geladen\u2026';
+  var r=new FileReader();
+  r.onload=function(e){
+    var pts=parseIGC(e.target.result);
+    if(pts.length<2){document.getElementById('igc-status').textContent='\u26A0 Keine GPS-Punkte';return;}
+    igcPoints=pts;
+    document.getElementById('igc-status').textContent='\u2713 '+pts.length+' GPS-Punkte';
     showIGCInfo(pts);
     document.getElementById('tab-upload').classList.add('done');
   };
-  reader.onerror = function(){ document.getElementById('igc-status').textContent = 'Lesefehler'; };
-  reader.readAsText(file, 'utf-8');
+  r.onerror=function(){document.getElementById('igc-status').textContent='Lesefehler';};
+  r.readAsText(file,'utf-8');
 });
 
-function parseIGC(text) {
-  var lines = text.split(/\r\n|\r|\n/);
-  var pts = [], dateStr = '';
-  for (var i = 0; i < lines.length; i++) {
-    var l = lines[i].trim();
-    if (!l) continue;
-    if (/^H[FP]DTE/i.test(l)) {
-      var m = l.match(/(\d{2})(\d{2})(\d{2})/);
-      if (m) dateStr = '20'+m[3]+'-'+m[2]+'-'+m[1];
-    }
-    if ((l[0]==='B'||l[0]==='b') && l.length >= 35) {
-      try {
-        var hh=parseInt(l.slice(1,3)), mm2=parseInt(l.slice(3,5)), ss=parseInt(l.slice(5,7));
-        var latD=parseInt(l.slice(7,9)), latM=parseFloat(l.slice(9,14))/1000, latH=l[14].toUpperCase();
-        var lonD=parseInt(l.slice(15,18)), lonM=parseFloat(l.slice(18,23))/1000, lonH=l[23].toUpperCase();
-        var altB=parseInt(l.slice(25,30)), altG=parseInt(l.slice(30,35));
+function parseIGC(text){
+  var lines=text.split(/\r\n|\r|\n/),pts=[],dateStr='';
+  for(var i=0;i<lines.length;i++){
+    var l=lines[i].trim(); if(!l) continue;
+    if(/^H[FP]DTE/i.test(l)){var m=l.match(/(\d{2})(\d{2})(\d{2})/);if(m) dateStr='20'+m[3]+'-'+m[2]+'-'+m[1];}
+    if((l[0]==='B'||l[0]==='b')&&l.length>=35){
+      try{
+        var hh=parseInt(l.slice(1,3)),mi=parseInt(l.slice(3,5)),ss=parseInt(l.slice(5,7));
+        var latD=parseInt(l.slice(7,9)),latM=parseFloat(l.slice(9,14))/1000,latH=l[14].toUpperCase();
+        var lonD=parseInt(l.slice(15,18)),lonM=parseFloat(l.slice(18,23))/1000,lonH=l[23].toUpperCase();
+        var altB=parseInt(l.slice(25,30)),altG=parseInt(l.slice(30,35));
         var lat=latD+latM/60; if(latH==='S') lat=-lat;
         var lon=lonD+lonM/60; if(lonH==='W') lon=-lon;
         var alt=(altB>0&&altB<20000)?altB:(altG>0?altG:0);
-        if(isFinite(lat)&&isFinite(lon)&&lat!==0&&lon!==0)
-          pts.push({t:hh*3600+mm2*60+ss, lat:lat, lon:lon, alt:alt, date:dateStr});
-      } catch(e){}
+        if(isFinite(lat)&&isFinite(lon)&&Math.abs(lat)>0.001) pts.push({t:hh*3600+mi*60+ss,lat:lat,lon:lon,alt:alt,date:dateStr});
+      }catch(e){}
     }
   }
   return pts;
 }
 
-function showIGCInfo(pts) {
-  var first=pts[0], last=pts[pts.length-1], dur=last.t-first.t;
-  var maxAlt=0, dist=0;
+function showIGCInfo(pts){
+  var first=pts[0],last=pts[pts.length-1],dur=last.t-first.t,maxAlt=0,dist=0;
   for(var i=0;i<pts.length;i++) if(pts[i].alt>maxAlt) maxAlt=pts[i].alt;
   for(var i=1;i<pts.length;i++) dist+=haversine(pts[i-1],pts[i]);
-  document.getElementById('info-date').textContent = first.date||'-';
-  document.getElementById('info-dur').textContent = Math.floor(dur/3600)+'h '+Math.floor((dur%3600)/60)+'m';
-  document.getElementById('info-pts').textContent = pts.length;
-  document.getElementById('info-alt').textContent = maxAlt+' m';
-  document.getElementById('info-start').textContent = first.lat.toFixed(3)+', '+first.lon.toFixed(3);
-  document.getElementById('info-dist').textContent = Math.round(dist)+' km';
-  document.getElementById('igc-info').style.display = 'block';
+  document.getElementById('info-date').textContent=first.date||'\u2013';
+  document.getElementById('info-dur').textContent=Math.floor(dur/3600)+'h '+Math.floor((dur%3600)/60)+'m';
+  document.getElementById('info-pts').textContent=pts.length.toLocaleString();
+  document.getElementById('info-alt').textContent=maxAlt+' m';
+  document.getElementById('info-start').textContent=first.lat.toFixed(3)+','+first.lon.toFixed(3);
+  document.getElementById('info-dist').textContent=Math.round(dist)+' km';
+  document.getElementById('igc-info').style.display='block';
 }
+function haversine(a,b){var R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180,x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
 
-function haversine(a,b) {
-  var R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180;
-  var x=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
-  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
-}
-
-// MAP
-document.getElementById('map-input').addEventListener('change', function() {
-  var file = this.files && this.files[0];
-  if (!file) return;
-  var url = URL.createObjectURL(file);
-  var img = new Image();
-  img.onload = function(){ mapImg = img; };
-  img.src = url;
-  var prev = document.getElementById('map-preview');
-  prev.src = url; prev.style.display = 'block';
-});
-
-// CAL
-document.getElementById('sl-scale').addEventListener('input', function(){
-  cfg.scale = parseFloat(this.value);
-  document.getElementById('val-scale').textContent = parseFloat(this.value).toFixed(1)+'x';
-});
-document.getElementById('sl-offset').addEventListener('input', function(){
-  cfg.headingOffset = parseInt(this.value);
-  document.getElementById('val-offset').textContent = this.value+' Grad';
-});
-document.querySelectorAll('.col-btn').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    document.querySelectorAll('.col-btn').forEach(function(b){ b.classList.remove('sel'); });
-    btn.classList.add('sel');
-    cfg.color = btn.getAttribute('data-color');
-  });
-});
-
-// CAMERA
-document.getElementById('btn-cam').addEventListener('click', function(){
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
-    .then(function(stream){
-      cameraStream = stream;
-      document.getElementById('dot-cam').classList.add('ok');
-      document.getElementById('btn-cam').classList.add('granted');
-      document.getElementById('btn-cam').querySelector('span:last-child').textContent = 'Kamera freigegeben';
-    })
-    .catch(function(e){ alert('Kamera-Fehler: '+e.message); });
-});
-
-document.getElementById('btn-start-cam').addEventListener('click', function(){
-  if (!cameraStream){ alert('Bitte erst Kamera freigeben (Schritt 2).'); return; }
-  var video = document.getElementById('camera-video');
-  video.srcObject = cameraStream;
-  video.style.display = 'block';
-  document.getElementById('cam-placeholder').style.display = 'none';
-  scheduleFrame();
-});
-
-// ORIENTATION
-document.getElementById('btn-orient').addEventListener('click', function(){
-  var activate = function(){
-    window.addEventListener('deviceorientation', function(e){
-      var h = e.webkitCompassHeading || e.alpha || 0;
-      heading = (h - cfg.headingOffset + 360) % 360;
-      document.getElementById('hud-heading').textContent = 'N '+Math.round(heading)+'&#xB0;';
-    }, true);
-    document.getElementById('dot-orient').classList.add('ok');
-    document.getElementById('btn-orient').classList.add('granted');
-    document.getElementById('btn-orient').querySelector('span:last-child').textContent = 'Lagesensor aktiv';
+// ---- MAP UPLOAD ----
+document.getElementById('map-input').addEventListener('change',function(){
+  var file=this.files&&this.files[0]; if(!file) return;
+  var url=URL.createObjectURL(file);
+  var img=new Image();
+  img.onload=function(){
+    mapImg=img;
+    calPoints=[]; affine=null;
+    document.getElementById('cal-status').textContent='Karte geladen \u2013 bitte kalibrieren';
+    document.getElementById('btn-calibrate').style.display='block';
   };
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission().then(function(s){ if(s==='granted') activate(); }).catch(function(e){ alert(e); });
-  } else { activate(); }
+  img.src=url;
+  var p=document.getElementById('map-preview'); p.src=url; p.style.display='block';
 });
 
-// CANVAS
-function resizeCanvas(){
-  canvas = document.getElementById('ar-canvas');
-  var cont = document.getElementById('ar-container');
-  canvas.width = cont.offsetWidth;
-  canvas.height = cont.offsetHeight;
-  ctx = canvas.getContext('2d');
+// ---- CALIBRATION OVERLAY ----
+document.getElementById('btn-calibrate').addEventListener('click',openCalibration);
+document.getElementById('cal-close').addEventListener('click',closeCalibration);
+document.getElementById('cal-done-btn').addEventListener('click',finishCalibration);
+
+function openCalibration(){
+  if(!mapImg){return;}
+  calPoints=[]; calCityIdx=0; affine=null;
+  document.getElementById('cal-overlay').classList.add('active');
+  document.getElementById('cal-done-btn').style.display='none';
+  initCalCanvas();
+  updateCalUI();
+}
+function closeCalibration(){
+  document.getElementById('cal-overlay').classList.remove('active');
 }
 
+function initCalCanvas(){
+  calCanvas=document.getElementById('cal-canvas');
+  var wrap=document.getElementById('cal-canvas-wrap');
+  calCanvas.width=wrap.offsetWidth;
+  calCanvas.height=wrap.offsetHeight;
+  calCtx=calCanvas.getContext('2d');
+  drawCalMap();
+}
+
+function drawCalMap(){
+  if(!calCtx||!mapImg) return;
+  var cw=calCanvas.width,ch=calCanvas.height;
+  calCtx.clearRect(0,0,cw,ch);
+  // Fit map preserving aspect ratio
+  var scale=Math.min(cw/mapImg.width,ch/mapImg.height);
+  var dw=mapImg.width*scale,dh=mapImg.height*scale;
+  var ox=(cw-dw)/2,oy=(ch-dh)/2;
+  calCtx.drawImage(mapImg,ox,oy,dw,dh);
+  // Draw already placed points
+  for(var i=0;i<calPoints.length;i++){
+    var p=calPoints[i];
+    var cx=ox+p.imgPx*scale,cy=oy+p.imgPy*scale;
+    calCtx.beginPath();calCtx.arc(cx,cy,9,0,Math.PI*2);calCtx.fillStyle='rgba(255,80,80,0.8)';calCtx.fill();
+    calCtx.fillStyle='#fff';calCtx.font='bold 11px sans-serif';calCtx.textAlign='center';calCtx.textBaseline='middle';
+    calCtx.fillText(i+1,cx,cy);
+    calCtx.fillStyle='rgba(255,255,255,0.9)';calCtx.font='bold 11px sans-serif';calCtx.textAlign='left';calCtx.textBaseline='bottom';
+    calCtx.fillText(CITIES[p.cityIdx].name,cx+11,cy+2);
+  }
+}
+
+function updateCalUI(){
+  var prog=document.getElementById('cal-progress');
+  prog.innerHTML='';
+  for(var i=0;i<CITIES.length;i++){
+    var d=document.createElement('div');
+    d.className='cal-dot'+(i<calPoints.length?' done-dot':i===calCityIdx?' active-dot':'');
+    prog.appendChild(d);
+  }
+  if(calCityIdx<CITIES.length){
+    document.getElementById('cal-city-name').textContent=CITIES[calCityIdx].name;
+    document.getElementById('cal-instruction').style.display='block';
+    if(calPoints.length>=MIN_POINTS){
+      document.getElementById('cal-done-btn').style.display='block';
+    }
+  } else {
+    document.getElementById('cal-instruction').style.display='none';
+    document.getElementById('cal-done-btn').style.display='block';
+  }
+}
+
+// Handle tap on calibration canvas
+calCanvas=document.getElementById('cal-canvas');
+calCanvas.addEventListener('click',onCalTap);
+calCanvas.addEventListener('touchend',function(e){
+  e.preventDefault();
+  var t=e.changedTouches[0];
+  var rect=calCanvas.getBoundingClientRect();
+  onCalTapXY(t.clientX-rect.left,t.clientY-rect.top);
+});
+function onCalTap(e){
+  var rect=calCanvas.getBoundingClientRect();
+  onCalTapXY(e.clientX-rect.left,e.clientY-rect.top);
+}
+function onCalTapXY(cx,cy){
+  if(calCityIdx>=CITIES.length) return;
+  if(!calCtx||!mapImg) return;
+  // Convert canvas pixel -> image pixel
+  var cw=calCanvas.width,ch=calCanvas.height;
+  var scale=Math.min(cw/mapImg.width,ch/mapImg.height);
+  var dw=mapImg.width*scale,dh=mapImg.height*scale;
+  var ox=(cw-dw)/2,oy=(ch-dh)/2;
+  var imgPx=(cx-ox)/scale, imgPy=(cy-oy)/scale;
+  if(imgPx<0||imgPy<0||imgPx>mapImg.width||imgPy>mapImg.height) return;
+  calPoints.push({imgPx:imgPx,imgPy:imgPy,cityIdx:calCityIdx,lat:CITIES[calCityIdx].lat,lon:CITIES[calCityIdx].lon});
+  calCityIdx++;
+  drawCalMap();
+  updateCalUI();
+}
+
+function finishCalibration(){
+  if(calPoints.length<MIN_POINTS){alert('Bitte mindestens 3 Punkte markieren.');return;}
+  affine=computeAffine(calPoints);
+  document.getElementById('cal-overlay').classList.remove('active');
+  var n=calPoints.length;
+  document.getElementById('cal-status').textContent='\u2713 Kalibriert mit '+n+' Punkten';
+}
+
+// ---- AFFINE TRANSFORM ----
+// Solve: lat = a*px + b*py + c,  lon = d*px + e*py + f  (pixel -> geo)
+// Inverse: px = A*lat + B*lon + C, py = D*lat + E*lon + F (geo -> pixel)
+function computeAffine(pts){
+  // Use first 3 points (could improve with least-squares for more)
+  var p=pts.slice(0,3);
+  // Build 3x3 matrix from pixel coords
+  var M=[[p[0].imgPx,p[0].imgPy,1],[p[1].imgPx,p[1].imgPy,1],[p[2].imgPx,p[2].imgPy,1]];
+  var lats=[p[0].lat,p[1].lat,p[2].lat];
+  var lons=[p[0].lon,p[1].lon,p[2].lon];
+  var pxs=[p[0].imgPx,p[1].imgPx,p[2].imgPx];
+  var pys=[p[0].imgPy,p[1].imgPy,p[2].imgPy];
+  var abc=solveLinear3(M,lats);
+  var def=solveLinear3(M,lons);
+  if(!abc||!def) return null;
+  // For inverse, build system from geo coords
+  var M2=[[p[0].lat,p[0].lon,1],[p[1].lat,p[1].lon,1],[p[2].lat,p[2].lon,1]];
+  var ABC=solveLinear3(M2,pxs);
+  var DEF=solveLinear3(M2,pys);
+  if(!ABC||!DEF) return null;
+  return {a:abc[0],b:abc[1],c:abc[2],d:def[0],e:def[1],f:def[2],
+          A:ABC[0],B:ABC[1],C:ABC[2],D:DEF[0],E:DEF[1],F:DEF[2]};
+}
+
+function solveLinear3(M,rhs){
+  // Solve M*x = rhs using Cramer's rule
+  var det=M[0][0]*(M[1][1]*M[2][2]-M[1][2]*M[2][1])
+         -M[0][1]*(M[1][0]*M[2][2]-M[1][2]*M[2][0])
+         +M[0][2]*(M[1][0]*M[2][1]-M[1][1]*M[2][0]);
+  if(Math.abs(det)<1e-12) return null;
+  var x0=(rhs[0]*(M[1][1]*M[2][2]-M[1][2]*M[2][1])-M[0][1]*(rhs[1]*M[2][2]-M[1][2]*rhs[2])+M[0][2]*(rhs[1]*M[2][1]-M[1][1]*rhs[2]))/det;
+  var x1=(M[0][0]*(rhs[1]*M[2][2]-M[1][2]*rhs[2])-rhs[0]*(M[1][0]*M[2][2]-M[1][2]*M[2][0])+M[0][2]*(M[1][0]*rhs[2]-rhs[1]*M[2][0]))/det;
+  var x2=(M[0][0]*(M[1][1]*rhs[2]-rhs[1]*M[2][1])-M[0][1]*(M[1][0]*rhs[2]-rhs[1]*M[2][0])+rhs[0]*(M[1][0]*M[2][1]-M[1][1]*M[2][0]))/det;
+  return [x0,x1,x2];
+}
+
+// Convert geo -> image pixel coords using affine
+function geoToImgPx(lat,lon){
+  if(!affine) return null;
+  return {x:affine.A*lat+affine.B*lon+affine.C, y:affine.D*lat+affine.E*lon+affine.F};
+}
+
+// ---- CAL SETTINGS ----
+document.getElementById('sl-scale').addEventListener('input',function(){cfg.scale=parseFloat(this.value);document.getElementById('val-scale').textContent=parseFloat(this.value).toFixed(1)+'\xD7';});
+document.getElementById('sl-offset').addEventListener('input',function(){cfg.headingOffset=parseInt(this.value);document.getElementById('val-offset').textContent=this.value+'\xB0';});
+document.getElementById('sl-alpha').addEventListener('input',function(){cfg.alpha=parseInt(this.value)/100;document.getElementById('val-alpha').textContent=this.value+'%';});
+document.querySelectorAll('.col-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){document.querySelectorAll('.col-btn').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');cfg.color=btn.getAttribute('data-color');});
+});
+
+// ---- CAMERA ----
+function doStartCamera(){
+  var btn=document.getElementById('btn-start-cam');
+  if(cameraStream){startVideoDisplay();return;}
+  btn.textContent='\u23F3 Kamera wird ge\xF6ffnet\u2026';
+  btn.disabled=true;
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280}},audio:false})
+    .then(function(stream){cameraStream=stream;startVideoDisplay();})
+    .catch(function(e){btn.textContent='\uD83D\uDCF7 Kamera starten';btn.disabled=false;alert('Kamera-Fehler: '+e.message+'\n\nBitte Kamera-Berechtigung unter iPhone-Einstellungen > Safari erlauben.');});
+}
+function startVideoDisplay(){
+  var v=document.getElementById('camera-video');
+  if(!v.srcObject) v.srcObject=cameraStream;
+  v.play().catch(function(){});
+  v.style.display='block';
+  document.getElementById('cam-placeholder').style.display='none';
+  document.getElementById('btn-start-cam').style.display='none';
+  scheduleFrame();
+}
+document.getElementById('btn-start-cam').addEventListener('click',doStartCamera);
+document.getElementById('cam-placeholder').addEventListener('click',doStartCamera);
+
+// ---- ORIENTATION ----
+var orientActive=false;
+function requestOrient(){
+  if(orientActive) return;
+  var go=function(){
+    orientActive=true;
+    window.addEventListener('deviceorientation',function(e){
+      var h=(typeof e.webkitCompassHeading!=='undefined'&&e.webkitCompassHeading!==null)?e.webkitCompassHeading:(360-(e.alpha||0));
+      heading=(h-cfg.headingOffset+360)%360;
+      document.getElementById('hud-heading').textContent='\u2191 '+Math.round(heading)+'\xB0';
+    },true);
+  };
+  if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
+    DeviceOrientationEvent.requestPermission().then(function(s){if(s==='granted') go();}).catch(function(){});
+  } else {go();}
+}
+
+// ---- AR CANVAS ----
+function resizeAR(){
+  arCanvas=document.getElementById('ar-canvas');
+  var c=document.getElementById('ar-container');
+  arCanvas.width=c.offsetWidth; arCanvas.height=c.offsetHeight;
+  arCtx=arCanvas.getContext('2d');
+}
 function scheduleFrame(){
-  if (rafId) cancelAnimationFrame(rafId);
-  rafId = requestAnimationFrame(function(){ drawFrame(); if(cameraStream) scheduleFrame(); });
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId=requestAnimationFrame(function(){drawFrame();if(cameraStream) scheduleFrame();});
 }
 
 function drawFrame(){
-  if (!ctx) resizeCanvas();
-  if (!ctx) return;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  if (!igcPoints.length) return;
-  var W=canvas.width, H=canvas.height, pts=igcPoints;
-  var minLat=Infinity,maxLat=-Infinity,minLon=Infinity,maxLon=-Infinity;
-  for(var i=0;i<pts.length;i++){
-    if(pts[i].lat<minLat) minLat=pts[i].lat; if(pts[i].lat>maxLat) maxLat=pts[i].lat;
-    if(pts[i].lon<minLon) minLon=pts[i].lon; if(pts[i].lon>maxLon) maxLon=pts[i].lon;
+  if(!arCtx) resizeAR(); if(!arCtx) return;
+  arCtx.clearRect(0,0,arCanvas.width,arCanvas.height);
+  var W=arCanvas.width,H=arCanvas.height;
+
+  // Draw georeferenced map overlay
+  if(mapImg && affine){
+    drawGeoMap(W,H);
   }
-  var dLat=maxLat-minLat||0.001, dLon=maxLon-minLon||0.001;
-  var cLat=(minLat+maxLat)/2, cLon=(minLon+maxLon)/2;
+
+  if(!igcPoints.length) return;
+  var pts=igcPoints;
   var maxAlt=0,minAlt=99999;
-  for(var i=0;i<pts.length;i++){ if(pts[i].alt>maxAlt) maxAlt=pts[i].alt; if(pts[i].alt<minAlt) minAlt=pts[i].alt; }
+  for(var i=0;i<pts.length;i++){if(pts[i].alt>maxAlt)maxAlt=pts[i].alt;if(pts[i].alt<minAlt)minAlt=pts[i].alt;}
   var altRange=maxAlt-minAlt||1;
 
-  function proj(p){
-    var nx=(p.lon-cLon)/dLon, ny=(p.lat-cLat)/dLat;
+  // Projection: use affine map if calibrated, else auto-fit
+  var projected=[];
+  if(affine && mapImg){
+    // Convert each IGC point: geo -> image pixel -> canvas position
+    // The map is drawn centered, rotated by heading
+    // We need to apply the same transform to the flight path points
+    var cw=arCanvas.width,ch=arCanvas.height;
+    var mapScale=Math.min(cw/mapImg.width,ch/mapImg.height)*cfg.scale;
     var rad=-heading*Math.PI/180;
-    var rx=nx*Math.cos(rad)-ny*Math.sin(rad), ry=nx*Math.sin(rad)+ny*Math.cos(rad);
-    var s=Math.min(W,H)*0.35*cfg.scale;
-    return {x:W/2+rx*s, y:H/2-ry*s};
+    var centerImgPx=W/2, centerImgPy=H/2;
+    // Find the center of the map in image coords (use IGC bounding box center)
+    var lats=pts.map(function(p){return p.lat;}),lons=pts.map(function(p){return p.lon;});
+    var cLat=(Math.min.apply(null,lats)+Math.max.apply(null,lats))/2;
+    var cLon=(Math.min.apply(null,lons)+Math.max.apply(null,lons))/2;
+    var cImgPos=geoToImgPx(cLat,cLon);
+    for(var i=0;i<pts.length;i++){
+      var imgPos=geoToImgPx(pts[i].lat,pts[i].lon);
+      if(!imgPos){projected.push({x:W/2,y:H/2});continue;}
+      var dx=(imgPos.x-cImgPos.x)*mapScale;
+      var dy=(imgPos.y-cImgPos.y)*mapScale;
+      var rx=dx*Math.cos(rad)-dy*Math.sin(rad);
+      var ry=dx*Math.sin(rad)+dy*Math.cos(rad);
+      projected.push({x:W/2+rx, y:H/2+ry});
+    }
+  } else {
+    // Auto-fit fallback
+    var lats2=pts.map(function(p){return p.lat;}),lons2=pts.map(function(p){return p.lon;});
+    var mnLat=Math.min.apply(null,lats2),mxLat=Math.max.apply(null,lats2);
+    var mnLon=Math.min.apply(null,lons2),mxLon=Math.max.apply(null,lons2);
+    var dLat=mxLat-mnLat||0.001,dLon=mxLon-mnLon||0.001;
+    var cLat2=(mnLat+mxLat)/2,cLon2=(mnLon+mxLon)/2;
+    var s=Math.min(W,H)*0.38*cfg.scale,rad2=-heading*Math.PI/180;
+    for(var i=0;i<pts.length;i++){
+      var nx=(pts[i].lon-cLon2)/dLon,ny=(pts[i].lat-cLat2)/dLat;
+      var rx2=nx*Math.cos(rad2)-ny*Math.sin(rad2),ry2=nx*Math.sin(rad2)+ny*Math.cos(rad2);
+      projected.push({x:W/2+rx2*s,y:H/2-ry2*s});
+    }
   }
 
-  var projected = [];
-  for(var i=0;i<pts.length;i++) projected.push(proj(pts[i]));
-  var endIdx = playIdx>0 ? Math.min(playIdx,projected.length-1) : projected.length-1;
+  var endIdx=playIdx>0?Math.min(playIdx,projected.length-1):projected.length-1;
 
-  // ghost
-  ctx.beginPath(); ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1.5;
-  for(var i=0;i<projected.length;i++) i===0?ctx.moveTo(projected[i].x,projected[i].y):ctx.lineTo(projected[i].x,projected[i].y);
-  ctx.stroke();
+  // Ghost path
+  arCtx.beginPath();arCtx.strokeStyle='rgba(255,255,255,0.1)';arCtx.lineWidth=1.5;
+  for(var i=0;i<projected.length;i++) i===0?arCtx.moveTo(projected[i].x,projected[i].y):arCtx.lineTo(projected[i].x,projected[i].y);
+  arCtx.stroke();
 
-  // colored path
-  var useAlt = cfg.color==='#44aaff';
+  // Altitude-colored path
+  var useAlt=(cfg.color==='#44aaff');
   for(var i=1;i<=endIdx;i++){
     var t=(pts[i].alt-minAlt)/altRange;
-    ctx.beginPath();
-    ctx.strokeStyle = useAlt ? 'rgba('+Math.round(68+t*150)+','+Math.round(170-t*80)+',255,0.9)' : cfg.color;
-    ctx.lineWidth=3; ctx.lineJoin='round';
-    ctx.moveTo(projected[i-1].x,projected[i-1].y);
-    ctx.lineTo(projected[i].x,projected[i].y);
-    ctx.stroke();
+    arCtx.beginPath();
+    arCtx.strokeStyle=useAlt?'rgba('+Math.round(68+t*150)+','+Math.round(200-t*130)+',255,0.92)':cfg.color;
+    arCtx.lineWidth=3;arCtx.lineJoin='round';
+    arCtx.moveTo(projected[i-1].x,projected[i-1].y);
+    arCtx.lineTo(projected[i].x,projected[i].y);
+    arCtx.stroke();
   }
 
-  // dot
-  if(endIdx>=0){
+  // Current position dot + arrow
+  if(endIdx>=0&&projected[endIdx]){
     var cp=projected[endIdx];
-    ctx.beginPath(); ctx.arc(cp.x,cp.y,10,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.fill();
-    ctx.beginPath(); ctx.arc(cp.x,cp.y,6,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
-    ctx.beginPath(); ctx.arc(cp.x,cp.y,4,0,Math.PI*2); ctx.fillStyle=cfg.color; ctx.fill();
-    if(endIdx<projected.length-1){
-      var np=projected[endIdx+1];
-      var angle=Math.atan2(np.y-cp.y,np.x-cp.x);
-      ctx.save(); ctx.translate(cp.x,cp.y); ctx.rotate(angle);
-      ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(-5,5); ctx.lineTo(-5,-5); ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fill();
-      ctx.restore();
+    arCtx.beginPath();arCtx.arc(cp.x,cp.y,11,0,Math.PI*2);arCtx.fillStyle='rgba(255,255,255,0.15)';arCtx.fill();
+    arCtx.beginPath();arCtx.arc(cp.x,cp.y,7,0,Math.PI*2);arCtx.fillStyle='#fff';arCtx.fill();
+    arCtx.beginPath();arCtx.arc(cp.x,cp.y,5,0,Math.PI*2);arCtx.fillStyle=cfg.color;arCtx.fill();
+    if(endIdx<projected.length-1&&projected[endIdx+1]){
+      var np=projected[endIdx+1],ang=Math.atan2(np.y-cp.y,np.x-cp.x);
+      arCtx.save();arCtx.translate(cp.x,cp.y);arCtx.rotate(ang);
+      arCtx.beginPath();arCtx.moveTo(15,0);arCtx.lineTo(-6,5);arCtx.lineTo(-6,-5);arCtx.fillStyle='rgba(255,255,255,0.85)';arCtx.fill();
+      arCtx.restore();
     }
-    document.getElementById('hud-alt').textContent = pts[endIdx].alt+' m';
+    document.getElementById('hud-alt').textContent=pts[endIdx].alt+' m';
   }
 
-  // minimap
-  if(mapImg){
-    var mw=Math.min(W*0.28,110), mh=mw*mapImg.height/mapImg.width, mx=W-mw-10, my=10;
-    ctx.globalAlpha=0.75; ctx.drawImage(mapImg,mx,my,mw,mh); ctx.globalAlpha=1;
-    ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=0.5; ctx.strokeRect(mx,my,mw,mh);
-    ctx.save(); ctx.beginPath(); ctx.rect(mx,my,mw,mh); ctx.clip();
-    var s2=Math.min(mw/dLon,mh/dLat)*0.85;
-    ctx.beginPath(); ctx.strokeStyle=cfg.color; ctx.lineWidth=1;
-    for(var i=0;i<pts.length;i++){
-      var x=mx+mw/2+(pts[i].lon-cLon)*s2, y=my+mh/2-(pts[i].lat-cLat)*s2;
-      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-    }
-    ctx.stroke();
-    if(endIdx>=0){
-      var cx2=mx+mw/2+(pts[endIdx].lon-cLon)*s2, cy2=my+mh/2-(pts[endIdx].lat-cLat)*s2;
-      ctx.beginPath(); ctx.arc(cx2,cy2,3,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  // compass
-  var cx3=28, cy3=H-32;
-  ctx.save(); ctx.translate(cx3,cy3); ctx.rotate(-heading*Math.PI/180);
-  ctx.beginPath(); ctx.moveTo(0,-13); ctx.lineTo(4,5); ctx.lineTo(-4,5); ctx.fillStyle='#f55'; ctx.fill();
-  ctx.beginPath(); ctx.moveTo(0,13); ctx.lineTo(4,-5); ctx.lineTo(-4,-5); ctx.fillStyle='#666'; ctx.fill();
-  ctx.restore();
-  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('N',cx3,cy3-17);
+  // Compass rose
+  var cxR=28,cyR=H-32;
+  arCtx.save();arCtx.translate(cxR,cyR);arCtx.rotate(-heading*Math.PI/180);
+  arCtx.beginPath();arCtx.moveTo(0,-13);arCtx.lineTo(4,5);arCtx.lineTo(-4,5);arCtx.fillStyle='#f55';arCtx.fill();
+  arCtx.beginPath();arCtx.moveTo(0,13);arCtx.lineTo(4,-5);arCtx.lineTo(-4,-5);arCtx.fillStyle='#555';arCtx.fill();
+  arCtx.restore();
+  arCtx.fillStyle='rgba(255,255,255,0.65)';arCtx.font='bold 9px sans-serif';arCtx.textAlign='center';
+  arCtx.fillText('N',cxR,cyR-18);
 }
 
-// PLAYBACK
-document.getElementById('btn-play').addEventListener('click', function(){
-  if(!igcPoints.length){ alert('Bitte zuerst eine IGC-Datei laden.'); return; }
+function drawGeoMap(W,H){
+  // Find center of flight (or map center)
+  var cImgPx,cImgPy;
+  if(igcPoints.length){
+    var lats=igcPoints.map(function(p){return p.lat;}),lons=igcPoints.map(function(p){return p.lon;});
+    var cLat=(Math.min.apply(null,lats)+Math.max.apply(null,lats))/2;
+    var cLon=(Math.min.apply(null,lons)+Math.max.apply(null,lons))/2;
+    var c=geoToImgPx(cLat,cLon);
+    cImgPx=c?c.x:mapImg.width/2; cImgPy=c?c.y:mapImg.height/2;
+  } else {
+    cImgPx=mapImg.width/2; cImgPy=mapImg.height/2;
+  }
+  // Scale: fit map so it covers the screen nicely
+  var mapScale=Math.min(W/mapImg.width,H/mapImg.height)*cfg.scale*1.5;
+  var rad=-heading*Math.PI/180;
+  arCtx.save();
+  arCtx.globalAlpha=cfg.alpha;
+  arCtx.translate(W/2,H/2);
+  arCtx.rotate(rad);
+  arCtx.drawImage(mapImg,-cImgPx*mapScale,-cImgPy*mapScale,mapImg.width*mapScale,mapImg.height*mapScale);
+  arCtx.restore();
+}
+
+// ---- PLAYBACK ----
+document.getElementById('btn-play').addEventListener('click',function(){
+  if(!igcPoints.length){alert('Bitte zuerst eine IGC-Datei laden.');return;}
   if(playTimer) clearInterval(playTimer);
   playIdx=0;
   var total=igcPoints.length;
   playTimer=setInterval(function(){
-    playIdx=Math.min(playIdx+cfg.playbackSpeed,total-1);
+    playIdx=Math.min(playIdx+cfg.speed,total-1);
     document.getElementById('progress-bar').style.width=(playIdx/(total-1)*100).toFixed(1)+'%';
-    var p=igcPoints[playIdx], h=Math.floor(p.t/3600), m=Math.floor((p.t%3600)/60), s=p.t%60;
+    var p=igcPoints[playIdx],h=Math.floor(p.t/3600),m=Math.floor((p.t%3600)/60),s=p.t%60;
     document.getElementById('time-disp').textContent=('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+s).slice(-2)+' UTC';
     if(!cameraStream) drawFrame();
     if(playIdx>=total-1) clearInterval(playTimer);
   },50);
 });
-
-document.getElementById('btn-stop').addEventListener('click', function(){
-  if(playTimer){ clearInterval(playTimer); playTimer=null; }
+document.getElementById('btn-stop').addEventListener('click',function(){
+  if(playTimer){clearInterval(playTimer);playTimer=null;}
+  playIdx=0;document.getElementById('progress-bar').style.width='0%';document.getElementById('time-disp').textContent='\u2013';drawFrame();
 });
-
-document.getElementById('sl-speed').addEventListener('input', function(){
-  cfg.playbackSpeed=parseInt(this.value);
-  document.getElementById('speed-val').textContent=this.value+'x';
-});
-
-window.addEventListener('resize', function(){
-  if(document.getElementById('panel-ar').classList.contains('active')) resizeCanvas();
-});
+document.getElementById('sl-speed').addEventListener('input',function(){cfg.speed=parseInt(this.value);document.getElementById('speed-val').textContent=this.value+'\xD7';});
+window.addEventListener('resize',function(){if(document.getElementById('panel-ar').classList.contains('active')){resizeAR();drawFrame();}if(document.getElementById('cal-overlay').classList.contains('active')) initCalCanvas();});
 </script>
 </body>
 </html>
