@@ -38,9 +38,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 2px; }
 .info-item span { font-size: 15px; font-weight: 600; }
 
-#map-upload-zone { border: 1px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; }
-#map-upload-zone input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 #map-preview { width: 100%; border-radius: 8px; margin-top: 0.75rem; display: none; max-height: 180px; object-fit: cover; opacity: 0.8; }
+
+/* UPLOAD CARDS */
+.upload-card { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 1.25rem; text-align: center; }
+.upload-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.upload-hint { font-size: 12px; color: #555; margin-bottom: 12px; }
+.upload-status { font-size: 13px; color: #4af; margin-top: 8px; min-height: 18px; }
+.file-btn { display: block; width: 100%; padding: 0.65rem; border-radius: 8px; border: 0.5px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #e8e8f0; font-size: 13px; cursor: pointer; }
+.file-btn::-webkit-file-upload-button { background: rgba(68,170,255,0.15); border: 0.5px solid #4af; border-radius: 6px; color: #4af; padding: 4px 12px; font-size: 13px; cursor: pointer; margin-right: 8px; }
+#map-preview { width: 100%; border-radius: 8px; margin-top: 0.75rem; display: none; max-height: 150px; object-fit: cover; opacity: 0.8; }
 
 /* CAL */
 #panel-cal { display: none; flex-direction: column; gap: 1rem; }
@@ -101,12 +108,14 @@ input[type=range] { width: 100%; accent-color: #4af; margin-top: 4px; }
 
     <!-- STEP 1 -->
     <div id="panel-upload">
-      <div class="drop-zone" id="igc-drop-zone">
+
+      <div class="upload-card">
         <div class="dz-icon">🪂</div>
-        <p id="igc-label">IGC-Datei laden</p>
-        <div class="hint">Flugcomputer-Aufzeichnung (.igc)</div>
+        <p class="upload-title">IGC-Flugdatei</p>
+        <p class="upload-hint">Flugcomputer-Aufzeichnung (.igc)</p>
+        <input type="file" id="igc-file" class="file-btn">
+        <p id="igc-status" class="upload-status"></p>
       </div>
-      <input type="file" id="igc-file" style="position:absolute;left:-9999px;top:-9999px" tabindex="-1">
 
       <div id="igc-info">
         <h3>Flug erkannt</h3>
@@ -120,13 +129,13 @@ input[type=range] { width: 100%; accent-color: #4af; margin-top: 4px; }
         </div>
       </div>
 
-      <div id="map-upload-zone">
+      <div class="upload-card">
         <div class="dz-icon">🗺️</div>
-        <p style="font-size:14px;color:#888">Reliefkarte laden (optional)</p>
-        <div style="font-size:12px;color:#555;margin-top:4px">.jpg / .png — wird als Mini-Karte eingeblendet</div>
+        <p class="upload-title">Reliefkarte <span style="color:#555;font-weight:400">(optional)</span></p>
+        <p class="upload-hint">.jpg / .png — erscheint als Mini-Karte</p>
+        <input type="file" id="map-file" accept="image/*" class="file-btn">
         <img id="map-preview">
       </div>
-      <input type="file" id="map-file" accept="image/*" style="position:absolute;left:-9999px;top:-9999px" tabindex="-1">
 
       <button class="next-btn" id="btn-next" disabled onclick="showTab('cal')">Weiter zur Einstellung →</button>
     </div>
@@ -224,23 +233,23 @@ function loadIGC(input) {
   const file = input.files[0];
   if (!file) return;
   // Show loading feedback
-  document.querySelector('.drop-zone p').textContent = 'Wird geladen…';
+  document.getElementById('igc-status').textContent = 'Wird geladen…';
   const reader = new FileReader();
   reader.onload = e => {
     try {
       igcPoints = parseIGC(e.target.result);
       if (igcPoints.length < 2) {
-        document.querySelector('.drop-zone p').textContent = '⚠️ Keine GPS-Punkte gefunden';
+        document.getElementById('igc-status').textContent = '⚠️ Keine GPS-Punkte gefunden';
         alert('Keine gültigen B-Records gefunden.\nBitte eine gültige .igc Datei wählen.');
         return;
       }
-      document.querySelector('.drop-zone p').textContent = '✓ ' + file.name;
+      document.getElementById('igc-status').textContent = '✓ ' + file.name;
       showIGCInfo();
       document.getElementById('btn-next').disabled = false;
       document.getElementById('tab-upload').classList.add('done');
     } catch(err) {
       alert('Fehler beim Lesen: ' + err.message);
-      document.querySelector('.drop-zone p').textContent = 'IGC-Datei laden';
+      document.getElementById('igc-status').textContent = '';
     }
   };
   reader.onerror = () => { alert('Datei konnte nicht gelesen werden.'); };
@@ -556,37 +565,13 @@ function setColor(c, btn) {
   btn.classList.add('sel');
 }
 
-// init - iOS-safe file input wiring
-(function() {
-  var igcInput = document.getElementById('igc-file');
-  var mapInput = document.getElementById('map-file');
-  var igcZone  = document.getElementById('igc-drop-zone');
-  var mapZone  = document.getElementById('map-upload-zone');
-
-  // Tap on zone -> programmatically click the input (must happen in direct user gesture handler)
-  igcZone.addEventListener('click', function(e) {
-    e.preventDefault();
-    igcInput.click();
-  });
-  mapZone.addEventListener('click', function(e) {
-    e.preventDefault();
-    mapInput.click();
-  });
-
-  // Also handle touchend for iOS
-  igcZone.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    igcInput.click();
-  });
-  mapZone.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    mapInput.click();
-  });
-
-  // File selected handlers via addEventListener (more reliable than onchange on iOS)
-  igcInput.addEventListener('change', function() { if (this.files && this.files[0]) loadIGC(this); });
-  mapInput.addEventListener('change', function() { if (this.files && this.files[0]) loadMap(this); });
-})();
+// init - direct addEventListener on visible inputs (most reliable on iOS)
+document.getElementById('igc-file').addEventListener('change', function() {
+  if (this.files && this.files[0]) loadIGC(this);
+});
+document.getElementById('map-file').addEventListener('change', function() {
+  if (this.files && this.files[0]) loadMap(this);
+});
 
 window.addEventListener('resize', () => {
   if (document.getElementById('panel-ar').style.display !== 'none') resizeCanvas();
