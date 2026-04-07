@@ -101,12 +101,12 @@ input[type=range] { width: 100%; accent-color: #4af; margin-top: 4px; }
 
     <!-- STEP 1 -->
     <div id="panel-upload">
-      <label class="drop-zone" for="igc-file">
+      <div class="drop-zone" id="igc-drop-zone">
         <div class="dz-icon">🪂</div>
-        <p>IGC-Datei laden</p>
+        <p id="igc-label">IGC-Datei laden</p>
         <div class="hint">Flugcomputer-Aufzeichnung (.igc)</div>
-        <input type="file" id="igc-file" onchange="loadIGC(this)">
-      </label>
+      </div>
+      <input type="file" id="igc-file" style="position:absolute;left:-9999px;top:-9999px" tabindex="-1">
 
       <div id="igc-info">
         <h3>Flug erkannt</h3>
@@ -120,13 +120,13 @@ input[type=range] { width: 100%; accent-color: #4af; margin-top: 4px; }
         </div>
       </div>
 
-      <label id="map-upload-zone" for="map-file">
+      <div id="map-upload-zone">
         <div class="dz-icon">🗺️</div>
         <p style="font-size:14px;color:#888">Reliefkarte laden (optional)</p>
         <div style="font-size:12px;color:#555;margin-top:4px">.jpg / .png — wird als Mini-Karte eingeblendet</div>
-        <input type="file" id="map-file" accept="image/*" onchange="loadMap(this)">
         <img id="map-preview">
-      </label>
+      </div>
+      <input type="file" id="map-file" accept="image/*" style="position:absolute;left:-9999px;top:-9999px" tabindex="-1">
 
       <button class="next-btn" id="btn-next" disabled onclick="showTab('cal')">Weiter zur Einstellung →</button>
     </div>
@@ -556,7 +556,38 @@ function setColor(c, btn) {
   btn.classList.add('sel');
 }
 
-// init
+// init - iOS-safe file input wiring
+(function() {
+  var igcInput = document.getElementById('igc-file');
+  var mapInput = document.getElementById('map-file');
+  var igcZone  = document.getElementById('igc-drop-zone');
+  var mapZone  = document.getElementById('map-upload-zone');
+
+  // Tap on zone -> programmatically click the input (must happen in direct user gesture handler)
+  igcZone.addEventListener('click', function(e) {
+    e.preventDefault();
+    igcInput.click();
+  });
+  mapZone.addEventListener('click', function(e) {
+    e.preventDefault();
+    mapInput.click();
+  });
+
+  // Also handle touchend for iOS
+  igcZone.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    igcInput.click();
+  });
+  mapZone.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    mapInput.click();
+  });
+
+  // File selected handlers via addEventListener (more reliable than onchange on iOS)
+  igcInput.addEventListener('change', function() { if (this.files && this.files[0]) loadIGC(this); });
+  mapInput.addEventListener('change', function() { if (this.files && this.files[0]) loadMap(this); });
+})();
+
 window.addEventListener('resize', () => {
   if (document.getElementById('panel-ar').style.display !== 'none') resizeCanvas();
 });
