@@ -26,9 +26,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#000;col
 #sb .b{font-size:11px}
 #cp{position:absolute;bottom:55px;right:8px;z-index:20;display:flex;flex-direction:column;gap:5px}
 .c2{background:rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:12px;font-weight:600;padding:8px 10px;cursor:pointer;text-align:center;min-width:80px}
-.c2.ac{border-color:#4af;color:#4af}
-.c2.wr{border-color:#fa4;color:#fa4}
-.c2.ok{border-color:#4d4;color:#4d4}
+.c2.ac{border-color:#4af;color:#4af}.c2.wr{border-color:#fa4;color:#fa4}.c2.ok{border-color:#4d4;color:#4d4}
 #bn{position:absolute;bottom:0;left:0;right:0;z-index:20;display:flex;border-top:1px solid rgba(255,255,255,0.08)}
 .nb{flex:1;padding:11px 4px;background:rgba(0,0,0,0.9);border:none;color:#666;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
 .ov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(6,6,14,0.97);z-index:100;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -61,7 +59,7 @@ input[type=range]{width:100%;accent-color:#4af;margin-top:2px;margin-bottom:8px}
   <video id="vid" autoplay playsinline muted></video>
   <div id="ph"><span style="font-size:46px">&#x1F4F7;</span><p style="font-size:15px;font-weight:600">Tippen um Kamera zu starten</p><p style="font-size:12px;color:#555">Dann Kamera auf Reliefkarte richten</p></div>
   <canvas id="cv"></canvas>
-  <div id="cb" class="h"><div class="in">Tippe im Kamerabild auf:<span class="cn" id="ccn">&ndash;</span><div class="su" id="csu">Punkt 1 von 3</div></div></div>
+  <div id="cb" class="h"><div class="in">Tippe im Kamerabild auf:<span class="cn" id="ccn">&ndash;</span><div class="su" id="csu"></div></div></div>
   <div id="sb"><div class="b" id="sbt">&ndash;</div></div>
   <div id="hud"><div class="b" id="hh">&#x2191; 0&deg;</div><div class="b" id="ha">&ndash; m</div></div>
   <div id="bot"><div id="pw"><div id="pb"></div></div><div id="td">&ndash;</div></div>
@@ -77,15 +75,17 @@ input[type=range]{width:100%;accent-color:#4af;margin-top:2px;margin-bottom:8px}
   </div>
 </div>
 
+<!-- UPLOAD OVERLAY -->
 <div class="ov" id="oup">
   <div class="oh"><h2>&#x1FA82; Flugdaten</h2><button class="oc" id="upc">Fertig</button></div>
   <div class="ob">
     <div class="cd"><div style="font-size:26px;margin-bottom:5px">&#x1FA82;</div><h3>IGC-Flugdatei</h3><div class="hn">.igc Flugcomputer-Aufzeichnung</div><input type="file" id="fi"><div class="st" id="fs"></div></div>
     <div id="ii"><div class="s2">Flug erkannt</div><div class="ig"><div><label>Datum</label><span id="iD">&ndash;</span></div><div><label>Dauer</label><span id="iU">&ndash;</span></div><div><label>GPS-Punkte</label><span id="iP">&ndash;</span></div><div><label>Max. H&ouml;he</label><span id="iA">&ndash;</span></div><div><label>Start</label><span id="iS">&ndash;</span></div><div><label>Strecke</label><span id="iK">&ndash;</span></div></div></div>
-    <div class="cd" style="background:#0d1118;border-color:#1a2a3a"><p style="font-size:13px;color:#888;line-height:1.5"><strong style="color:#4af">So geht&rsquo;s:</strong><br>1. IGC-Datei laden<br>2. Kamera auf Reliefkarte richten<br>3. &bdquo;Kalibrieren&ldquo; tippen<br>4. Valensole, Manosque, Gap antippen<br>5. Fertig &mdash; Pfad klebt auf der Karte!<br><span style="color:#555;font-size:11px">Tracking h&auml;lt den Pfad bei Drehen, Zoomen und Verschieben auf der Karte.</span></p></div>
+    <div class="cd" style="background:#0d1118;border-color:#1a2a3a"><p style="font-size:13px;color:#888;line-height:1.5"><strong style="color:#4af">So geht&rsquo;s:</strong><br>1. IGC-Datei laden<br>2. Kamera auf Reliefkarte richten<br>3. &bdquo;Kalibrieren&ldquo; tippen<br>4. Valensole, Manosque, Ch&acirc;teau-Arnoux antippen<br>5. Fertig &mdash; Pfad klebt auf der Karte!<br><span style="color:#555;font-size:11px">Optical-Flow-Tracking h&auml;lt den Pfad bei Bewegen, Drehen und Zoomen auf der Karte. Bei Drift: einfach neu kalibrieren.</span></p></div>
   </div>
 </div>
 
+<!-- SETTINGS OVERLAY -->
 <div class="ov h" id="oset">
   <div class="oh"><h2>&#x2699;&#xFE0F; Einstellungen</h2><button class="oc" id="setc">Fertig</button></div>
   <div class="ob">
@@ -94,40 +94,32 @@ input[type=range]{width:100%;accent-color:#4af;margin-top:2px;margin-bottom:8px}
   </div>
 </div>
 
-<!-- Hidden canvas for optical flow processing -->
 <canvas id="of1" style="display:none"></canvas>
 <canvas id="of2" style="display:none"></canvas>
 
 <script>
-// ==== CITIES ====
-var CITIES=[{name:'Valensole',lat:43.837,lon:5.983},{name:'Manosque',lat:43.834,lon:5.784},{name:'Gap',lat:44.559,lon:6.079}];
+// ==== CITIES (Gap replaced by Chateau-Arnoux) ====
+var CITIES=[
+  {name:'Valensole',       lat:43.837, lon:5.983},
+  {name:'Manosque',        lat:43.834, lon:5.784},
+  {name:'Ch\u00E2teau-Arnoux', lat:44.094, lon:6.008}
+];
 
 // ==== STATE ====
 var pts=[], cfg={color:'#44aaff',speed:10,width:3};
 var heading=0, camStr=null, cv, cx, raf;
 var pTmr=null, pIdx=0;
+var calOn=false, calStep=0, calScrPts=[], calDone=false, affine=null;
 
-// Calibration state
-var calOn=false, calStep=0, calScrPts=[];
-var calDone=false;
-// Affine: geo(lat,lon) -> screen at calibration time
-var affine=null;
-
-// ==== OPTICAL FLOW STATE ====
-var OF_W=160, OF_H=120; // downsampled resolution for speed
-var ofCanvas1, ofCtx1, ofCanvas2, ofCtx2;
-var prevGray=null; // Uint8Array of previous frame grayscale
-var currGray=null;
-// Cumulative transform since calibration
-// Represented as: x' = s*(cos(r)*x - sin(r)*y) + tx
-//                 y' = s*(sin(r)*x + cos(r)*y) + ty
-// relative to calibration center
+// ==== IMPROVED OPTICAL FLOW ====
+var OFW=240, OFH=180; // higher resolution for better tracking
+var ofC1,ofX1,ofC2,ofX2;
+var prevGray=null;
+// Cumulative similarity transform: x'=s*(cos(r)*x - sin(r)*y)+tx, y'=s*(sin(r)*x + cos(r)*y)+ty
 var cumTx=0, cumTy=0, cumRot=0, cumScale=1;
-var ofFrameCount=0;
-var trackingActive=false;
-var trackConfidence=0;
-// For capturing video frames
-var vidCapCanvas, vidCapCtx;
+var trackActive=false, trackConf=0;
+var smoothTx=0, smoothTy=0, smoothRot=0, smoothScale=1; // smoothed values
+var SMOOTH=0.6; // smoothing factor (0=no smooth, 1=ignore new data)
 
 // ==== NAV ====
 document.getElementById('nup').onclick=function(){document.getElementById('oup').classList.remove('h');};
@@ -184,7 +176,6 @@ function showInfo(p){
   document.getElementById('iK').textContent=Math.round(di)+' km';
   document.getElementById('ii').style.display='block';
 }
-
 function showSB(t,c){var s=document.getElementById('sb');s.style.display='block';document.getElementById('sbt').textContent=t;document.getElementById('sbt').style.color=c||'#fff';setTimeout(function(){s.style.display='none';},3500);}
 
 // ==== CAMERA ====
@@ -192,7 +183,7 @@ function startCam(){
   if(camStr){showVid();return;}
   document.getElementById('ph').innerHTML='<p style="font-size:14px;color:#888">\u23F3 Kamera\u2026</p>';
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false})
-    .then(function(s){camStr=s;showVid();reqOrient();initOFCanvases();})
+    .then(function(s){camStr=s;showVid();reqOrient();initOF();})
     .catch(function(e){document.getElementById('ph').innerHTML='<span style="font-size:42px">&#x1F4F7;</span><p style="font-size:14px;color:#d44">'+e.message+'</p>';});
 }
 function showVid(){
@@ -209,206 +200,205 @@ document.getElementById('ph').addEventListener('click',startCam);
 var oriOn=false;
 function reqOrient(){
   if(oriOn) return;
-  var go=function(){
-    oriOn=true;
-    window.addEventListener('deviceorientation',function(e){
-      var h=(typeof e.webkitCompassHeading!=='undefined'&&e.webkitCompassHeading!==null)?e.webkitCompassHeading:(360-(e.alpha||0));
-      heading=h;
-      document.getElementById('hh').textContent='\u2191 '+Math.round(h)+'\xB0';
-    },true);
-  };
-  if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
-    DeviceOrientationEvent.requestPermission().then(function(s){if(s==='granted') go();}).catch(function(){});
-  } else {go();}
+  var go=function(){oriOn=true;window.addEventListener('deviceorientation',function(e){var h=(typeof e.webkitCompassHeading!=='undefined'&&e.webkitCompassHeading!==null)?e.webkitCompassHeading:(360-(e.alpha||0));heading=h;document.getElementById('hh').textContent='\u2191 '+Math.round(h)+'\xB0';},true);};
+  if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(function(s){if(s==='granted') go();}).catch(function(){});}else{go();}
 }
 
-// ==== OPTICAL FLOW ====
-function initOFCanvases(){
-  ofCanvas1=document.getElementById('of1');
-  ofCanvas2=document.getElementById('of2');
-  ofCanvas1.width=OF_W; ofCanvas1.height=OF_H;
-  ofCanvas2.width=OF_W; ofCanvas2.height=OF_H;
-  ofCtx1=ofCanvas1.getContext('2d',{willReadFrequently:true});
-  ofCtx2=ofCanvas2.getContext('2d',{willReadFrequently:true});
-  // Video capture canvas (full res for quality)
-  vidCapCanvas=document.createElement('canvas');
-  vidCapCtx=vidCapCanvas.getContext('2d',{willReadFrequently:true});
+// ==== OPTICAL FLOW ENGINE ====
+function initOF(){
+  ofC1=document.getElementById('of1');ofC2=document.getElementById('of2');
+  ofC1.width=OFW;ofC1.height=OFH;ofC2.width=OFW;ofC2.height=OFH;
+  ofX1=ofC1.getContext('2d',{willReadFrequently:true});
+  ofX2=ofC2.getContext('2d',{willReadFrequently:true});
 }
 
-function captureGrayscale(){
-  var vid=document.getElementById('vid');
-  if(!vid.videoWidth) return null;
-  // Draw video to small canvas
-  ofCtx2.drawImage(vid,0,0,OF_W,OF_H);
-  var imgData=ofCtx2.getImageData(0,0,OF_W,OF_H);
-  var gray=new Uint8Array(OF_W*OF_H);
-  var d=imgData.data;
-  for(var i=0;i<gray.length;i++){
-    var j=i*4;
-    gray[i]=(d[j]*77+d[j+1]*150+d[j+2]*29)>>8; // fast grayscale
-  }
-  return gray;
+function captureGray(){
+  var v=document.getElementById('vid');
+  if(!v.videoWidth||!ofX2) return null;
+  ofX2.drawImage(v,0,0,OFW,OFH);
+  var id=ofX2.getImageData(0,0,OFW,OFH),d=id.data;
+  var g=new Uint8Array(OFW*OFH);
+  for(var i=0;i<g.length;i++){var j=i*4;g[i]=(d[j]*77+d[j+1]*150+d[j+2]*29)>>8;}
+  return g;
 }
 
-// Compute optical flow between prevGray and currGray
-// Returns {tx, ty, rot, scale, confidence} - the estimated transform
-function computeOpticalFlow(prev,curr){
-  if(!prev||!curr) return null;
-  var W=OF_W, H=OF_H;
-  // Sample grid of points to track
-  var gridStep=16;
-  var margin=20;
-  var srcPts=[], dstPts=[];
+// Compute gradient magnitude at a point (for feature quality)
+function gradMag(gray,x,y){
+  var W=OFW,H=OFH;
+  if(x<1||y<1||x>=W-1||y>=H-1) return 0;
+  var idx=y*W+x;
+  var gx=Math.abs(gray[idx+1]-gray[idx-1]);
+  var gy=Math.abs(gray[idx+W]-gray[idx-W]);
+  // Also diagonal for better corner detection
+  var gd1=Math.abs(gray[idx+W+1]-gray[idx-W-1]);
+  var gd2=Math.abs(gray[idx+W-1]-gray[idx-W+1]);
+  return gx+gy+((gd1+gd2)>>1);
+}
 
-  for(var gy=margin;gy<H-margin;gy+=gridStep){
-    for(var gx=margin;gx<W-margin;gx+=gridStep){
-      // Check if this point has enough texture (gradient magnitude)
-      var idx=gy*W+gx;
-      var gxv=Math.abs((prev[idx+1]||0)-(prev[idx-1]||0));
-      var gyv=Math.abs((prev[idx+W]||0)-(prev[idx-W]||0));
-      if(gxv+gyv<15) continue; // skip flat regions
+function runOF(){
+  if(!trackActive||!calDone) return;
+  var curr=captureGray();
+  if(!curr) return;
+  if(!prevGray){prevGray=curr;return;}
 
-      // Search for best match in a window around this point
-      var bestDx=0, bestDy=0, bestSAD=999999;
-      var patchR=4; // patch radius
-      var searchR=12; // search radius
+  var W=OFW,H=OFH;
+  var step=12, margin=16, searchR=14, patchR=4;
+  var srcPts=[],dstPts=[];
 
+  // Collect feature points with good texture
+  for(var gy=margin;gy<H-margin;gy+=step){
+    for(var gx=margin;gx<W-margin;gx+=step){
+      if(gradMag(prevGray,gx,gy)<20) continue; // skip flat areas
+
+      // Block matching with SAD
+      var bestDx=0,bestDy=0,bestSAD=999999;
       for(var dy=-searchR;dy<=searchR;dy++){
         for(var dx=-searchR;dx<=searchR;dx++){
-          var sad=0, count=0;
-          for(var py=-patchR;py<=patchR;py+=2){
-            for(var px=-patchR;px<=patchR;px+=2){
-              var sy=gy+py, sx2=gx+px;
-              var ty=gy+py+dy, tx=gx+px+dx;
-              if(sy<0||sy>=H||sx2<0||sx2>=W||ty<0||ty>=H||tx<0||tx>=W) continue;
-              sad+=Math.abs(prev[sy*W+sx2]-curr[ty*W+tx]);
-              count++;
+          var sad=0,cnt=0;
+          for(var py=-patchR;py<=patchR;py++){
+            for(var px=-patchR;px<=patchR;px++){
+              var sy=gy+py,sx=gx+px;
+              var ty=gy+py+dy,tx=gx+px+dx;
+              if(sy<0||sy>=H||sx<0||sx>=W||ty<0||ty>=H||tx<0||tx>=W) continue;
+              sad+=Math.abs(prevGray[sy*W+sx]-curr[ty*W+tx]);
+              cnt++;
             }
           }
-          if(count>0) sad/=count;
+          if(cnt>0) sad/=cnt;
           if(sad<bestSAD){bestSAD=sad;bestDx=dx;bestDy=dy;}
         }
       }
-
-      // Only accept good matches
-      if(bestSAD<25){
-        srcPts.push({x:gx,y:gy});
-        dstPts.push({x:gx+bestDx,y:gy+bestDy});
-      }
+      if(bestSAD<20){srcPts.push({x:gx,y:gy});dstPts.push({x:gx+bestDx,y:gy+bestDy});}
     }
   }
 
-  if(srcPts.length<4) return {tx:0,ty:0,rot:0,scale:1,confidence:0};
+  if(srcPts.length<5){trackConf=Math.max(0,trackConf-0.1);prevGray=curr;return;}
 
-  // RANSAC-lite: compute similarity transform (translation + rotation + scale)
-  // Use all inlier points with least squares
+  // RANSAC: find best similarity transform from 2 random point pairs
+  var bestInliers=0, bestT=null;
+  var trials=Math.min(30,srcPts.length*2);
+  for(var trial=0;trial<trials;trial++){
+    var i1=Math.floor(Math.random()*srcPts.length);
+    var i2=Math.floor(Math.random()*srcPts.length);
+    if(i1===i2) continue;
+    // Solve similarity from 2 correspondences
+    var t=solveSim2(srcPts[i1],srcPts[i2],dstPts[i1],dstPts[i2]);
+    if(!t) continue;
+    // Count inliers
+    var inl=0;
+    for(var k=0;k<srcPts.length;k++){
+      var px=t.s*(t.cos*srcPts[k].x-t.sin*srcPts[k].y)+t.tx;
+      var py=t.s*(t.sin*srcPts[k].x+t.cos*srcPts[k].y)+t.ty;
+      var err=Math.abs(px-dstPts[k].x)+Math.abs(py-dstPts[k].y);
+      if(err<3) inl++;
+    }
+    if(inl>bestInliers){bestInliers=inl;bestT=t;}
+  }
+
+  if(!bestT||bestInliers<4){trackConf=Math.max(0,trackConf-0.08);prevGray=curr;return;}
+
+  // Refine with all inliers (least squares)
+  var inSrc=[],inDst=[];
+  for(var k=0;k<srcPts.length;k++){
+    var px2=bestT.s*(bestT.cos*srcPts[k].x-bestT.sin*srcPts[k].y)+bestT.tx;
+    var py2=bestT.s*(bestT.sin*srcPts[k].x+bestT.cos*srcPts[k].y)+bestT.ty;
+    var err2=Math.abs(px2-dstPts[k].x)+Math.abs(py2-dstPts[k].y);
+    if(err2<3){inSrc.push(srcPts[k]);inDst.push(dstPts[k]);}
+  }
+  var refined=solveSimilarityLS(inSrc,inDst);
+  if(!refined){prevGray=curr;return;}
+
+  // Scale from OF coords to screen coords
+  var scX=cv.width/OFW, scY=cv.height/OFH;
+  var dTx=refined.tx*scX, dTy=refined.ty*scY;
+  var dRot=refined.rot, dScale=refined.scale;
+
+  // Clamp extreme values (sanity check)
+  if(Math.abs(dRot)>0.15) dRot=0; // >8 degrees per frame is too much
+  if(dScale<0.9||dScale>1.1) dScale=1; // >10% scale change per frame is too much
+  if(Math.abs(dTx)>cv.width*0.15) dTx=0;
+  if(Math.abs(dTy)>cv.height*0.15) dTy=0;
+
+  // Apply incremental transform to cumulative (correct order!)
+  var oldTx=cumTx, oldTy=cumTy;
+  var cs=Math.cos(dRot), sn=Math.sin(dRot);
+  cumTx=dScale*(cs*oldTx-sn*oldTy)+dTx;
+  cumTy=dScale*(sn*oldTx+cs*oldTy)+dTy;
+  cumRot+=dRot;
+  cumScale*=dScale;
+
+  // Smooth
+  smoothTx=SMOOTH*smoothTx+(1-SMOOTH)*cumTx;
+  smoothTy=SMOOTH*smoothTy+(1-SMOOTH)*cumTy;
+  smoothRot=SMOOTH*smoothRot+(1-SMOOTH)*cumRot;
+  smoothScale=SMOOTH*smoothScale+(1-SMOOTH)*cumScale;
+
+  trackConf=Math.min(1,bestInliers/srcPts.length+0.2);
+  prevGray=curr;
+}
+
+// Solve similarity transform from 2 point correspondences
+function solveSim2(s1,s2,d1,d2){
+  var ax=s2.x-s1.x, ay=s2.y-s1.y;
+  var bx=d2.x-d1.x, by=d2.y-d1.y;
+  var lenA=Math.sqrt(ax*ax+ay*ay);
+  var lenB=Math.sqrt(bx*bx+by*by);
+  if(lenA<1||lenB<1) return null;
+  var s=lenB/lenA;
+  var rot=Math.atan2(ax*by-ay*bx,ax*bx+ay*by);
+  var cos=Math.cos(rot),sin=Math.sin(rot);
+  var tx=d1.x-s*(cos*s1.x-sin*s1.y);
+  var ty=d1.y-s*(sin*s1.x+cos*s1.y);
+  return {s:s,cos:cos,sin:sin,tx:tx,ty:ty};
+}
+
+// Least squares similarity transform from N correspondences
+function solveSimilarityLS(src,dst){
+  if(src.length<2) return null;
+  var n=src.length;
   var cxS=0,cyS=0,cxD=0,cyD=0;
-  for(var i=0;i<srcPts.length;i++){cxS+=srcPts[i].x;cyS+=srcPts[i].y;cxD+=dstPts[i].x;cyD+=dstPts[i].y;}
-  cxS/=srcPts.length;cyS/=srcPts.length;cxD/=srcPts.length;cyD/=srcPts.length;
-
-  // Estimate rotation and scale using centered coordinates
+  for(var i=0;i<n;i++){cxS+=src[i].x;cyS+=src[i].y;cxD+=dst[i].x;cyD+=dst[i].y;}
+  cxS/=n;cyS/=n;cxD/=n;cyD/=n;
   var num=0,den=0,srcVar=0;
-  for(var i=0;i<srcPts.length;i++){
-    var sx3=srcPts[i].x-cxS, sy3=srcPts[i].y-cyS;
-    var dx3=dstPts[i].x-cxD, dy3=dstPts[i].y-cyD;
-    num+=sx3*dy3-sy3*dx3; // cross product -> rotation
-    den+=sx3*dx3+sy3*dy3; // dot product -> scale*cos(theta)
-    srcVar+=sx3*sx3+sy3*sy3;
+  for(var i=0;i<n;i++){
+    var sx=src[i].x-cxS,sy=src[i].y-cyS;
+    var dx=dst[i].x-cxD,dy=dst[i].y-cyD;
+    num+=sx*dy-sy*dx;
+    den+=sx*dx+sy*dy;
+    srcVar+=sx*sx+sy*sy;
   }
-
-  var rot2=Math.atan2(num,den);
-  var scale2=srcVar>0?Math.sqrt(num*num+den*den)/srcVar:1;
-  var tx2=cxD-scale2*(Math.cos(rot2)*cxS-Math.sin(rot2)*cyS);
-  var ty2=cyD-scale2*(Math.sin(rot2)*cxS+Math.cos(rot2)*cyS);
-
-  // Compute residual for confidence
-  var totalErr=0;
-  for(var i=0;i<srcPts.length;i++){
-    var px2=scale2*(Math.cos(rot2)*srcPts[i].x-Math.sin(rot2)*srcPts[i].y)+tx2;
-    var py2=scale2*(Math.sin(rot2)*srcPts[i].x+Math.cos(rot2)*srcPts[i].y)+ty2;
-    var ex=px2-dstPts[i].x, ey=py2-dstPts[i].y;
-    totalErr+=Math.sqrt(ex*ex+ey*ey);
-  }
-  var avgErr=totalErr/srcPts.length;
-  var conf=Math.max(0,Math.min(1,1-avgErr/5));
-
-  // Scale tx/ty from OF resolution to screen resolution
-  var scaleX=cv.width/OF_W;
-  var scaleY=cv.height/OF_H;
-
-  return {
-    tx:tx2*scaleX,
-    ty:ty2*scaleY,
-    rot:rot2,
-    scale:scale2,
-    confidence:conf,
-    numPts:srcPts.length
-  };
+  if(srcVar<1) return null;
+  var rot=Math.atan2(num,den);
+  var scale=Math.sqrt(num*num+den*den)/srcVar;
+  var cos=Math.cos(rot),sin=Math.sin(rot);
+  var tx=cxD-scale*(cos*cxS-sin*cyS);
+  var ty=cyD-scale*(sin*cxS+cos*cyS);
+  return {rot:rot,scale:scale,tx:tx,ty:ty};
 }
 
-function processOpticalFlow(){
-  if(!trackingActive||!calDone) return;
-
-  currGray=captureGrayscale();
-  if(!currGray){return;}
-
-  if(prevGray){
-    var result=computeOpticalFlow(prevGray,currGray);
-    if(result && result.confidence>0.3){
-      // Update cumulative transform
-      // New point = scale * rot(point - center) + center + translation
-      // We accumulate in screen space
-
-      // Apply the incremental transform to cumulative state
-      var newScale=cumScale*result.scale;
-      var newRot=cumRot+result.rot;
-      cumTx=result.scale*(Math.cos(result.rot)*cumTx-Math.sin(result.rot)*cumTy)+result.tx;
-      cumTy=result.scale*(Math.sin(result.rot)*cumTx+Math.cos(result.rot)*cumTy)+result.ty;
-      cumScale=newScale;
-      cumRot=newRot;
-
-      trackConfidence=result.confidence;
-    } else {
-      trackConfidence=Math.max(0,trackConfidence-0.05);
-    }
-  }
-
-  // Swap buffers
-  var tmp=prevGray;
-  prevGray=currGray;
-  currGray=tmp;
-  ofFrameCount++;
-}
-
-function resetOF(){
-  cumTx=0;cumTy=0;cumRot=0;cumScale=1;
-  prevGray=null;currGray=null;
-  ofFrameCount=0;trackConfidence=0;
-  trackingActive=false;
-}
+function resetOF(){cumTx=0;cumTy=0;cumRot=0;cumScale=1;smoothTx=0;smoothTy=0;smoothRot=0;smoothScale=1;prevGray=null;trackActive=false;trackConf=0;}
 
 // ==== CALIBRATION ====
 document.getElementById('bcal').addEventListener('click',function(){
   if(calOn){cancelCal();return;}
-  if(!pts.length){alert('Bitte zuerst eine IGC-Datei laden.');return;}
-  if(!camStr){startCam();}
+  if(!pts.length){alert('Bitte zuerst IGC-Datei laden.');return;}
+  if(!camStr) startCam();
   calOn=true;calStep=0;calScrPts=[];calDone=false;affine=null;resetOF();
-  updCalB();
+  updCB();
   cv.style.pointerEvents='auto';cv.style.cursor='crosshair';
   document.getElementById('bcal').classList.add('ac');
   document.getElementById('bcal').textContent='\u274C Abbrechen';
 });
 
 function cancelCal(){
-  calOn=false;
-  cv.style.pointerEvents='none';cv.style.cursor='default';
+  calOn=false;cv.style.pointerEvents='none';cv.style.cursor='default';
   document.getElementById('cb').classList.add('h');
   document.getElementById('bcal').classList.remove('ac');
   document.getElementById('bcal').textContent=calDone?'\uD83D\uDCCD Neu kalibrieren':'\uD83D\uDCCD Kalibrieren';
   document.getElementById('bcal').className=calDone?'c2 ok':'c2 wr';
 }
 
-function updCalB(){
+function updCB(){
   if(!calOn||calStep>=CITIES.length){document.getElementById('cb').classList.add('h');return;}
   document.getElementById('cb').classList.remove('h');
   document.getElementById('ccn').textContent=CITIES[calStep].name;
@@ -427,7 +417,7 @@ function tapC(cx2,cy2){
   calScrPts.push({sx:sx,sy:sy,lat:CITIES[calStep].lat,lon:CITIES[calStep].lon,name:CITIES[calStep].name});
   calStep++;
   if(calStep>=CITIES.length) finishCal();
-  else updCalB();
+  else updCB();
 }
 
 function finishCal(){
@@ -437,14 +427,9 @@ function finishCal(){
   var def2=sol3(M,[p[0].sy,p[1].sy,p[2].sy]);
   if(!abc||!def2){alert('Kalibrierung fehlgeschlagen.');cancelCal();return;}
   affine={A:abc[0],B:abc[1],C:abc[2],D:def2[0],E:def2[1],F:def2[2]};
-
-  // Reset optical flow tracking
   resetOF();
-  calDone=true;
-  trackingActive=true;
-  // Capture first frame for tracking
-  prevGray=captureGrayscale();
-
+  calDone=true;trackActive=true;
+  prevGray=captureGray();
   cancelCal();
   showSB('\u2713 Kalibriert + Tracking aktiv','#4d4');
   drawFrame();
@@ -460,19 +445,13 @@ function sol3(M,rhs){
   ];
 }
 
-// Project geo -> screen with optical flow correction
-function geoToScreen(lat,lon){
+// Project geo -> screen with OF correction
+function g2s(lat,lon){
   if(!affine) return null;
-  // Position at calibration time
   var ox=affine.A*lat+affine.B*lon+affine.C;
   var oy=affine.D*lat+affine.E*lon+affine.F;
-
-  // Apply cumulative optical flow transform
-  var cos=Math.cos(cumRot), sin=Math.sin(cumRot);
-  var x2=cumScale*(cos*ox-sin*oy)+cumTx;
-  var y2=cumScale*(sin*ox+cos*oy)+cumTy;
-
-  return {x:x2, y:y2};
+  var cs=Math.cos(smoothRot),sn=Math.sin(smoothRot);
+  return {x:smoothScale*(cs*ox-sn*oy)+smoothTx, y:smoothScale*(sn*ox+cs*oy)+smoothTy};
 }
 
 // ==== SETTINGS ====
@@ -480,18 +459,14 @@ document.getElementById('sw').addEventListener('input',function(){cfg.width=pars
 document.getElementById('ss').addEventListener('input',function(){cfg.speed=parseInt(this.value);document.getElementById('vs').textContent=this.value+'\xD7';document.getElementById('bspd').textContent=this.value+'\xD7';});
 document.querySelectorAll('.clb').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.clb').forEach(function(c){c.classList.remove('sel');});b.classList.add('sel');cfg.color=b.getAttribute('data-c');});});
 
-// ==== CANVAS ====
+// ==== RENDER ====
 function resizeCv(){cv=document.getElementById('cv');cv.width=window.innerWidth;cv.height=window.innerHeight;cx=cv.getContext('2d');}
-
-var ofInterval=0;
+var ofTick=0;
 function schedFrame(){
   if(raf) cancelAnimationFrame(raf);
   raf=requestAnimationFrame(function(){
-    // Run optical flow every 3rd frame for performance
-    ofInterval++;
-    if(ofInterval%3===0 && trackingActive && calDone){
-      processOpticalFlow();
-    }
+    ofTick++;
+    if(ofTick%2===0 && trackActive && calDone) runOF(); // every 2nd frame
     drawFrame();
     if(camStr) schedFrame();
   });
@@ -501,7 +476,7 @@ function drawFrame(){
   if(!cx) resizeCv(); if(!cx) return;
   cx.clearRect(0,0,cv.width,cv.height);
 
-  // Calibration markers
+  // Cal markers during calibration
   if(calOn && calScrPts.length>0){
     for(var i=0;i<calScrPts.length;i++){
       var p2=calScrPts[i];
@@ -517,22 +492,16 @@ function drawFrame(){
   }
 
   if(!pts.length||!calDone||!affine) return;
-
   var W=cv.width,H=cv.height,pt=pts;
   var maxAlt=0,minAlt=99999;
   for(var i=0;i<pt.length;i++){if(pt[i].alt>maxAlt)maxAlt=pt[i].alt;if(pt[i].alt<minAlt)minAlt=pt[i].alt;}
   var altR=maxAlt-minAlt||1;
 
-  // Project all points with OF correction
   var proj=[];
-  for(var i=0;i<pt.length;i++){
-    var sp=geoToScreen(pt[i].lat,pt[i].lon);
-    proj.push(sp||{x:-999,y:-999});
-  }
-
+  for(var i=0;i<pt.length;i++){var sp=g2s(pt[i].lat,pt[i].lon);proj.push(sp||{x:-999,y:-999});}
   var endI=pIdx>0?Math.min(pIdx,proj.length-1):proj.length-1;
 
-  // Ghost path
+  // Ghost
   cx.beginPath();cx.strokeStyle='rgba(255,255,255,0.1)';cx.lineWidth=1;
   for(var i=0;i<proj.length;i++) i===0?cx.moveTo(proj[i].x,proj[i].y):cx.lineTo(proj[i].x,proj[i].y);
   cx.stroke();
@@ -547,7 +516,7 @@ function drawFrame(){
     cx.moveTo(proj[i-1].x,proj[i-1].y);cx.lineTo(proj[i].x,proj[i].y);cx.stroke();
   }
 
-  // Current dot
+  // Dot + arrow
   if(endI>=0&&proj[endI]){
     var cp=proj[endI],w=cfg.width;
     cx.beginPath();cx.arc(cp.x,cp.y,w+8,0,Math.PI*2);cx.fillStyle='rgba(255,255,255,0.2)';cx.fill();
@@ -574,14 +543,15 @@ function drawFrame(){
     cx.fillStyle='rgba(255,100,100,0.9)';cx.fillText('LANDING',lp.x,lp.y-14);
   }
 
-  // Tracking confidence indicator (bottom left)
-  if(trackingActive){
-    var cStr=Math.round(trackConfidence*100);
-    var cCol=trackConfidence>0.6?'#4d4':trackConfidence>0.3?'#fa4':'#d44';
-    cx.fillStyle='rgba(0,0,0,0.6)';
-    cx.fillRect(8,cv.height-80,65,20);
+  // Tracking indicator
+  if(trackActive){
+    var cStr=Math.round(trackConf*100);
+    var cCol=trackConf>0.6?'#4d4':trackConf>0.3?'#fa4':'#d44';
+    cx.fillStyle='rgba(0,0,0,0.55)';
+    var bx=8,by=cv.height-80;
+    cx.beginPath();cx.roundRect(bx,by,72,22,4);cx.fill();
     cx.fillStyle=cCol;cx.font='bold 10px sans-serif';cx.textAlign='left';cx.textBaseline='middle';
-    cx.fillText('Track '+cStr+'%',12,cv.height-70);
+    cx.fillText('Track '+cStr+'%',bx+6,by+11);
   }
 }
 
@@ -589,8 +559,7 @@ function drawFrame(){
 document.getElementById('bplay').addEventListener('click',function(){
   if(!pts.length){alert('Bitte zuerst IGC-Datei laden.');return;}
   if(!calDone){alert('Bitte zuerst kalibrieren.');return;}
-  if(pTmr) clearInterval(pTmr);
-  pIdx=0;
+  if(pTmr) clearInterval(pTmr);pIdx=0;
   var tot=pts.length;
   pTmr=setInterval(function(){
     pIdx=Math.min(pIdx+cfg.speed,tot-1);
@@ -601,12 +570,10 @@ document.getElementById('bplay').addEventListener('click',function(){
     if(pIdx>=tot-1) clearInterval(pTmr);
   },50);
 });
-
 document.getElementById('bstop').addEventListener('click',function(){
   if(pTmr){clearInterval(pTmr);pTmr=null;}
   pIdx=0;document.getElementById('pb').style.width='0%';document.getElementById('td').textContent='\u2013';drawFrame();
 });
-
 document.getElementById('bspd').addEventListener('click',function(){
   var sp=[1,5,10,25,50,100],ix=sp.indexOf(cfg.speed);
   cfg.speed=sp[(ix+1)%sp.length];
@@ -615,7 +582,6 @@ document.getElementById('bspd').addEventListener('click',function(){
   document.getElementById('vs').textContent=cfg.speed+'\xD7';
 });
 
-// ==== INIT ====
 window.addEventListener('resize',resizeCv);
 resizeCv();
 </script>
